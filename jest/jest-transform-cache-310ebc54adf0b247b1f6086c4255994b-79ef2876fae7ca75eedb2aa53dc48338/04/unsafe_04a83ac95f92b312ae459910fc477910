@@ -1,0 +1,284 @@
+dff2d0604dbe0f9090198409b69a6dcb
+/**
+ * @typedef {import('./types.js').ConstructName} ConstructName
+ * @typedef {import('./types.js').Unsafe} Unsafe
+ */ /**
+ * List of constructs that occur in phrasing (paragraphs, headings), but cannot
+ * contain things like attention (emphasis, strong), images, or links.
+ * So they sort of cancel each other out.
+ * Note: could use a better name.
+ *
+ * @type {Array<ConstructName>}
+ */ "use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+Object.defineProperty(exports, "unsafe", {
+    enumerable: true,
+    get: function() {
+        return unsafe;
+    }
+});
+const fullPhrasingSpans = [
+    'autolink',
+    'destinationLiteral',
+    'destinationRaw',
+    'reference',
+    'titleQuote',
+    'titleApostrophe'
+];
+const unsafe = [
+    {
+        character: '\t',
+        after: '[\\r\\n]',
+        inConstruct: 'phrasing'
+    },
+    {
+        character: '\t',
+        before: '[\\r\\n]',
+        inConstruct: 'phrasing'
+    },
+    {
+        character: '\t',
+        inConstruct: [
+            'codeFencedLangGraveAccent',
+            'codeFencedLangTilde'
+        ]
+    },
+    {
+        character: '\r',
+        inConstruct: [
+            'codeFencedLangGraveAccent',
+            'codeFencedLangTilde',
+            'codeFencedMetaGraveAccent',
+            'codeFencedMetaTilde',
+            'destinationLiteral',
+            'headingAtx'
+        ]
+    },
+    {
+        character: '\n',
+        inConstruct: [
+            'codeFencedLangGraveAccent',
+            'codeFencedLangTilde',
+            'codeFencedMetaGraveAccent',
+            'codeFencedMetaTilde',
+            'destinationLiteral',
+            'headingAtx'
+        ]
+    },
+    {
+        character: ' ',
+        after: '[\\r\\n]',
+        inConstruct: 'phrasing'
+    },
+    {
+        character: ' ',
+        before: '[\\r\\n]',
+        inConstruct: 'phrasing'
+    },
+    {
+        character: ' ',
+        inConstruct: [
+            'codeFencedLangGraveAccent',
+            'codeFencedLangTilde'
+        ]
+    },
+    // An exclamation mark can start an image, if it is followed by a link or
+    // a link reference.
+    {
+        character: '!',
+        after: '\\[',
+        inConstruct: 'phrasing',
+        notInConstruct: fullPhrasingSpans
+    },
+    // A quote can break out of a title.
+    {
+        character: '"',
+        inConstruct: 'titleQuote'
+    },
+    // A number sign could start an ATX heading if it starts a line.
+    {
+        atBreak: true,
+        character: '#'
+    },
+    {
+        character: '#',
+        inConstruct: 'headingAtx',
+        after: '(?:[\r\n]|$)'
+    },
+    // Dollar sign and percentage are not used in markdown.
+    // An ampersand could start a character reference.
+    {
+        character: '&',
+        after: '[#A-Za-z]',
+        inConstruct: 'phrasing'
+    },
+    // An apostrophe can break out of a title.
+    {
+        character: "'",
+        inConstruct: 'titleApostrophe'
+    },
+    // A left paren could break out of a destination raw.
+    {
+        character: '(',
+        inConstruct: 'destinationRaw'
+    },
+    // A left paren followed by `]` could make something into a link or image.
+    {
+        before: '\\]',
+        character: '(',
+        inConstruct: 'phrasing',
+        notInConstruct: fullPhrasingSpans
+    },
+    // A right paren could start a list item or break out of a destination
+    // raw.
+    {
+        atBreak: true,
+        before: '\\d+',
+        character: ')'
+    },
+    {
+        character: ')',
+        inConstruct: 'destinationRaw'
+    },
+    // An asterisk can start thematic breaks, list items, emphasis, strong.
+    {
+        atBreak: true,
+        character: '*',
+        after: '(?:[ \t\r\n*])'
+    },
+    {
+        character: '*',
+        inConstruct: 'phrasing',
+        notInConstruct: fullPhrasingSpans
+    },
+    // A plus sign could start a list item.
+    {
+        atBreak: true,
+        character: '+',
+        after: '(?:[ \t\r\n])'
+    },
+    // A dash can start thematic breaks, list items, and setext heading
+    // underlines.
+    {
+        atBreak: true,
+        character: '-',
+        after: '(?:[ \t\r\n-])'
+    },
+    // A dot could start a list item.
+    {
+        atBreak: true,
+        before: '\\d+',
+        character: '.',
+        after: '(?:[ \t\r\n]|$)'
+    },
+    // Slash, colon, and semicolon are not used in markdown for constructs.
+    // A less than can start html (flow or text) or an autolink.
+    // HTML could start with an exclamation mark (declaration, cdata, comment),
+    // slash (closing tag), question mark (instruction), or a letter (tag).
+    // An autolink also starts with a letter.
+    // Finally, it could break out of a destination literal.
+    {
+        atBreak: true,
+        character: '<',
+        after: '[!/?A-Za-z]'
+    },
+    {
+        character: '<',
+        after: '[!/?A-Za-z]',
+        inConstruct: 'phrasing',
+        notInConstruct: fullPhrasingSpans
+    },
+    {
+        character: '<',
+        inConstruct: 'destinationLiteral'
+    },
+    // An equals to can start setext heading underlines.
+    {
+        atBreak: true,
+        character: '='
+    },
+    // A greater than can start block quotes and it can break out of a
+    // destination literal.
+    {
+        atBreak: true,
+        character: '>'
+    },
+    {
+        character: '>',
+        inConstruct: 'destinationLiteral'
+    },
+    // Question mark and at sign are not used in markdown for constructs.
+    // A left bracket can start definitions, references, labels,
+    {
+        atBreak: true,
+        character: '['
+    },
+    {
+        character: '[',
+        inConstruct: 'phrasing',
+        notInConstruct: fullPhrasingSpans
+    },
+    {
+        character: '[',
+        inConstruct: [
+            'label',
+            'reference'
+        ]
+    },
+    // A backslash can start an escape (when followed by punctuation) or a
+    // hard break (when followed by an eol).
+    // Note: typical escapes are handled in `safe`!
+    {
+        character: '\\',
+        after: '[\\r\\n]',
+        inConstruct: 'phrasing'
+    },
+    // A right bracket can exit labels.
+    {
+        character: ']',
+        inConstruct: [
+            'label',
+            'reference'
+        ]
+    },
+    // Caret is not used in markdown for constructs.
+    // An underscore can start emphasis, strong, or a thematic break.
+    {
+        atBreak: true,
+        character: '_'
+    },
+    {
+        character: '_',
+        inConstruct: 'phrasing',
+        notInConstruct: fullPhrasingSpans
+    },
+    // A grave accent can start code (fenced or text), or it can break out of
+    // a grave accent code fence.
+    {
+        atBreak: true,
+        character: '`'
+    },
+    {
+        character: '`',
+        inConstruct: [
+            'codeFencedLangGraveAccent',
+            'codeFencedMetaGraveAccent'
+        ]
+    },
+    {
+        character: '`',
+        inConstruct: 'phrasing',
+        notInConstruct: fullPhrasingSpans
+    },
+    // Left brace, vertical bar, right brace are not used in markdown for
+    // constructs.
+    // A tilde can start code (fenced).
+    {
+        atBreak: true,
+        character: '~'
+    }
+];
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9Vc2Vycy9tY2F0dGFuZW8vd29ya3NwYWNlL2Zyb250ZW5kL25vZGVfbW9kdWxlcy9tZGFzdC11dGlsLXRvLW1hcmtkb3duL2xpYi91bnNhZmUuanMiXSwic291cmNlc0NvbnRlbnQiOlsiLyoqXG4gKiBAdHlwZWRlZiB7aW1wb3J0KCcuL3R5cGVzLmpzJykuQ29uc3RydWN0TmFtZX0gQ29uc3RydWN0TmFtZVxuICogQHR5cGVkZWYge2ltcG9ydCgnLi90eXBlcy5qcycpLlVuc2FmZX0gVW5zYWZlXG4gKi9cblxuLyoqXG4gKiBMaXN0IG9mIGNvbnN0cnVjdHMgdGhhdCBvY2N1ciBpbiBwaHJhc2luZyAocGFyYWdyYXBocywgaGVhZGluZ3MpLCBidXQgY2Fubm90XG4gKiBjb250YWluIHRoaW5ncyBsaWtlIGF0dGVudGlvbiAoZW1waGFzaXMsIHN0cm9uZyksIGltYWdlcywgb3IgbGlua3MuXG4gKiBTbyB0aGV5IHNvcnQgb2YgY2FuY2VsIGVhY2ggb3RoZXIgb3V0LlxuICogTm90ZTogY291bGQgdXNlIGEgYmV0dGVyIG5hbWUuXG4gKlxuICogQHR5cGUge0FycmF5PENvbnN0cnVjdE5hbWU+fVxuICovXG5jb25zdCBmdWxsUGhyYXNpbmdTcGFucyA9IFtcbiAgJ2F1dG9saW5rJyxcbiAgJ2Rlc3RpbmF0aW9uTGl0ZXJhbCcsXG4gICdkZXN0aW5hdGlvblJhdycsXG4gICdyZWZlcmVuY2UnLFxuICAndGl0bGVRdW90ZScsXG4gICd0aXRsZUFwb3N0cm9waGUnXG5dXG5cbi8qKiBAdHlwZSB7QXJyYXk8VW5zYWZlPn0gKi9cbmV4cG9ydCBjb25zdCB1bnNhZmUgPSBbXG4gIHtjaGFyYWN0ZXI6ICdcXHQnLCBhZnRlcjogJ1tcXFxcclxcXFxuXScsIGluQ29uc3RydWN0OiAncGhyYXNpbmcnfSxcbiAge2NoYXJhY3RlcjogJ1xcdCcsIGJlZm9yZTogJ1tcXFxcclxcXFxuXScsIGluQ29uc3RydWN0OiAncGhyYXNpbmcnfSxcbiAge1xuICAgIGNoYXJhY3RlcjogJ1xcdCcsXG4gICAgaW5Db25zdHJ1Y3Q6IFsnY29kZUZlbmNlZExhbmdHcmF2ZUFjY2VudCcsICdjb2RlRmVuY2VkTGFuZ1RpbGRlJ11cbiAgfSxcbiAge1xuICAgIGNoYXJhY3RlcjogJ1xccicsXG4gICAgaW5Db25zdHJ1Y3Q6IFtcbiAgICAgICdjb2RlRmVuY2VkTGFuZ0dyYXZlQWNjZW50JyxcbiAgICAgICdjb2RlRmVuY2VkTGFuZ1RpbGRlJyxcbiAgICAgICdjb2RlRmVuY2VkTWV0YUdyYXZlQWNjZW50JyxcbiAgICAgICdjb2RlRmVuY2VkTWV0YVRpbGRlJyxcbiAgICAgICdkZXN0aW5hdGlvbkxpdGVyYWwnLFxuICAgICAgJ2hlYWRpbmdBdHgnXG4gICAgXVxuICB9LFxuICB7XG4gICAgY2hhcmFjdGVyOiAnXFxuJyxcbiAgICBpbkNvbnN0cnVjdDogW1xuICAgICAgJ2NvZGVGZW5jZWRMYW5nR3JhdmVBY2NlbnQnLFxuICAgICAgJ2NvZGVGZW5jZWRMYW5nVGlsZGUnLFxuICAgICAgJ2NvZGVGZW5jZWRNZXRhR3JhdmVBY2NlbnQnLFxuICAgICAgJ2NvZGVGZW5jZWRNZXRhVGlsZGUnLFxuICAgICAgJ2Rlc3RpbmF0aW9uTGl0ZXJhbCcsXG4gICAgICAnaGVhZGluZ0F0eCdcbiAgICBdXG4gIH0sXG4gIHtjaGFyYWN0ZXI6ICcgJywgYWZ0ZXI6ICdbXFxcXHJcXFxcbl0nLCBpbkNvbnN0cnVjdDogJ3BocmFzaW5nJ30sXG4gIHtjaGFyYWN0ZXI6ICcgJywgYmVmb3JlOiAnW1xcXFxyXFxcXG5dJywgaW5Db25zdHJ1Y3Q6ICdwaHJhc2luZyd9LFxuICB7XG4gICAgY2hhcmFjdGVyOiAnICcsXG4gICAgaW5Db25zdHJ1Y3Q6IFsnY29kZUZlbmNlZExhbmdHcmF2ZUFjY2VudCcsICdjb2RlRmVuY2VkTGFuZ1RpbGRlJ11cbiAgfSxcbiAgLy8gQW4gZXhjbGFtYXRpb24gbWFyayBjYW4gc3RhcnQgYW4gaW1hZ2UsIGlmIGl0IGlzIGZvbGxvd2VkIGJ5IGEgbGluayBvclxuICAvLyBhIGxpbmsgcmVmZXJlbmNlLlxuICB7XG4gICAgY2hhcmFjdGVyOiAnIScsXG4gICAgYWZ0ZXI6ICdcXFxcWycsXG4gICAgaW5Db25zdHJ1Y3Q6ICdwaHJhc2luZycsXG4gICAgbm90SW5Db25zdHJ1Y3Q6IGZ1bGxQaHJhc2luZ1NwYW5zXG4gIH0sXG4gIC8vIEEgcXVvdGUgY2FuIGJyZWFrIG91dCBvZiBhIHRpdGxlLlxuICB7Y2hhcmFjdGVyOiAnXCInLCBpbkNvbnN0cnVjdDogJ3RpdGxlUXVvdGUnfSxcbiAgLy8gQSBudW1iZXIgc2lnbiBjb3VsZCBzdGFydCBhbiBBVFggaGVhZGluZyBpZiBpdCBzdGFydHMgYSBsaW5lLlxuICB7YXRCcmVhazogdHJ1ZSwgY2hhcmFjdGVyOiAnIyd9LFxuICB7Y2hhcmFjdGVyOiAnIycsIGluQ29uc3RydWN0OiAnaGVhZGluZ0F0eCcsIGFmdGVyOiAnKD86W1xcclxcbl18JCknfSxcbiAgLy8gRG9sbGFyIHNpZ24gYW5kIHBlcmNlbnRhZ2UgYXJlIG5vdCB1c2VkIGluIG1hcmtkb3duLlxuICAvLyBBbiBhbXBlcnNhbmQgY291bGQgc3RhcnQgYSBjaGFyYWN0ZXIgcmVmZXJlbmNlLlxuICB7Y2hhcmFjdGVyOiAnJicsIGFmdGVyOiAnWyNBLVphLXpdJywgaW5Db25zdHJ1Y3Q6ICdwaHJhc2luZyd9LFxuICAvLyBBbiBhcG9zdHJvcGhlIGNhbiBicmVhayBvdXQgb2YgYSB0aXRsZS5cbiAge2NoYXJhY3RlcjogXCInXCIsIGluQ29uc3RydWN0OiAndGl0bGVBcG9zdHJvcGhlJ30sXG4gIC8vIEEgbGVmdCBwYXJlbiBjb3VsZCBicmVhayBvdXQgb2YgYSBkZXN0aW5hdGlvbiByYXcuXG4gIHtjaGFyYWN0ZXI6ICcoJywgaW5Db25zdHJ1Y3Q6ICdkZXN0aW5hdGlvblJhdyd9LFxuICAvLyBBIGxlZnQgcGFyZW4gZm9sbG93ZWQgYnkgYF1gIGNvdWxkIG1ha2Ugc29tZXRoaW5nIGludG8gYSBsaW5rIG9yIGltYWdlLlxuICB7XG4gICAgYmVmb3JlOiAnXFxcXF0nLFxuICAgIGNoYXJhY3RlcjogJygnLFxuICAgIGluQ29uc3RydWN0OiAncGhyYXNpbmcnLFxuICAgIG5vdEluQ29uc3RydWN0OiBmdWxsUGhyYXNpbmdTcGFuc1xuICB9LFxuICAvLyBBIHJpZ2h0IHBhcmVuIGNvdWxkIHN0YXJ0IGEgbGlzdCBpdGVtIG9yIGJyZWFrIG91dCBvZiBhIGRlc3RpbmF0aW9uXG4gIC8vIHJhdy5cbiAge2F0QnJlYWs6IHRydWUsIGJlZm9yZTogJ1xcXFxkKycsIGNoYXJhY3RlcjogJyknfSxcbiAge2NoYXJhY3RlcjogJyknLCBpbkNvbnN0cnVjdDogJ2Rlc3RpbmF0aW9uUmF3J30sXG4gIC8vIEFuIGFzdGVyaXNrIGNhbiBzdGFydCB0aGVtYXRpYyBicmVha3MsIGxpc3QgaXRlbXMsIGVtcGhhc2lzLCBzdHJvbmcuXG4gIHthdEJyZWFrOiB0cnVlLCBjaGFyYWN0ZXI6ICcqJywgYWZ0ZXI6ICcoPzpbIFxcdFxcclxcbipdKSd9LFxuICB7Y2hhcmFjdGVyOiAnKicsIGluQ29uc3RydWN0OiAncGhyYXNpbmcnLCBub3RJbkNvbnN0cnVjdDogZnVsbFBocmFzaW5nU3BhbnN9LFxuICAvLyBBIHBsdXMgc2lnbiBjb3VsZCBzdGFydCBhIGxpc3QgaXRlbS5cbiAge2F0QnJlYWs6IHRydWUsIGNoYXJhY3RlcjogJysnLCBhZnRlcjogJyg/OlsgXFx0XFxyXFxuXSknfSxcbiAgLy8gQSBkYXNoIGNhbiBzdGFydCB0aGVtYXRpYyBicmVha3MsIGxpc3QgaXRlbXMsIGFuZCBzZXRleHQgaGVhZGluZ1xuICAvLyB1bmRlcmxpbmVzLlxuICB7YXRCcmVhazogdHJ1ZSwgY2hhcmFjdGVyOiAnLScsIGFmdGVyOiAnKD86WyBcXHRcXHJcXG4tXSknfSxcbiAgLy8gQSBkb3QgY291bGQgc3RhcnQgYSBsaXN0IGl0ZW0uXG4gIHthdEJyZWFrOiB0cnVlLCBiZWZvcmU6ICdcXFxcZCsnLCBjaGFyYWN0ZXI6ICcuJywgYWZ0ZXI6ICcoPzpbIFxcdFxcclxcbl18JCknfSxcbiAgLy8gU2xhc2gsIGNvbG9uLCBhbmQgc2VtaWNvbG9uIGFyZSBub3QgdXNlZCBpbiBtYXJrZG93biBmb3IgY29uc3RydWN0cy5cbiAgLy8gQSBsZXNzIHRoYW4gY2FuIHN0YXJ0IGh0bWwgKGZsb3cgb3IgdGV4dCkgb3IgYW4gYXV0b2xpbmsuXG4gIC8vIEhUTUwgY291bGQgc3RhcnQgd2l0aCBhbiBleGNsYW1hdGlvbiBtYXJrIChkZWNsYXJhdGlvbiwgY2RhdGEsIGNvbW1lbnQpLFxuICAvLyBzbGFzaCAoY2xvc2luZyB0YWcpLCBxdWVzdGlvbiBtYXJrIChpbnN0cnVjdGlvbiksIG9yIGEgbGV0dGVyICh0YWcpLlxuICAvLyBBbiBhdXRvbGluayBhbHNvIHN0YXJ0cyB3aXRoIGEgbGV0dGVyLlxuICAvLyBGaW5hbGx5LCBpdCBjb3VsZCBicmVhayBvdXQgb2YgYSBkZXN0aW5hdGlvbiBsaXRlcmFsLlxuICB7YXRCcmVhazogdHJ1ZSwgY2hhcmFjdGVyOiAnPCcsIGFmdGVyOiAnWyEvP0EtWmEtel0nfSxcbiAge1xuICAgIGNoYXJhY3RlcjogJzwnLFxuICAgIGFmdGVyOiAnWyEvP0EtWmEtel0nLFxuICAgIGluQ29uc3RydWN0OiAncGhyYXNpbmcnLFxuICAgIG5vdEluQ29uc3RydWN0OiBmdWxsUGhyYXNpbmdTcGFuc1xuICB9LFxuICB7Y2hhcmFjdGVyOiAnPCcsIGluQ29uc3RydWN0OiAnZGVzdGluYXRpb25MaXRlcmFsJ30sXG4gIC8vIEFuIGVxdWFscyB0byBjYW4gc3RhcnQgc2V0ZXh0IGhlYWRpbmcgdW5kZXJsaW5lcy5cbiAge2F0QnJlYWs6IHRydWUsIGNoYXJhY3RlcjogJz0nfSxcbiAgLy8gQSBncmVhdGVyIHRoYW4gY2FuIHN0YXJ0IGJsb2NrIHF1b3RlcyBhbmQgaXQgY2FuIGJyZWFrIG91dCBvZiBhXG4gIC8vIGRlc3RpbmF0aW9uIGxpdGVyYWwuXG4gIHthdEJyZWFrOiB0cnVlLCBjaGFyYWN0ZXI6ICc+J30sXG4gIHtjaGFyYWN0ZXI6ICc+JywgaW5Db25zdHJ1Y3Q6ICdkZXN0aW5hdGlvbkxpdGVyYWwnfSxcbiAgLy8gUXVlc3Rpb24gbWFyayBhbmQgYXQgc2lnbiBhcmUgbm90IHVzZWQgaW4gbWFya2Rvd24gZm9yIGNvbnN0cnVjdHMuXG4gIC8vIEEgbGVmdCBicmFja2V0IGNhbiBzdGFydCBkZWZpbml0aW9ucywgcmVmZXJlbmNlcywgbGFiZWxzLFxuICB7YXRCcmVhazogdHJ1ZSwgY2hhcmFjdGVyOiAnWyd9LFxuICB7Y2hhcmFjdGVyOiAnWycsIGluQ29uc3RydWN0OiAncGhyYXNpbmcnLCBub3RJbkNvbnN0cnVjdDogZnVsbFBocmFzaW5nU3BhbnN9LFxuICB7Y2hhcmFjdGVyOiAnWycsIGluQ29uc3RydWN0OiBbJ2xhYmVsJywgJ3JlZmVyZW5jZSddfSxcbiAgLy8gQSBiYWNrc2xhc2ggY2FuIHN0YXJ0IGFuIGVzY2FwZSAod2hlbiBmb2xsb3dlZCBieSBwdW5jdHVhdGlvbikgb3IgYVxuICAvLyBoYXJkIGJyZWFrICh3aGVuIGZvbGxvd2VkIGJ5IGFuIGVvbCkuXG4gIC8vIE5vdGU6IHR5cGljYWwgZXNjYXBlcyBhcmUgaGFuZGxlZCBpbiBgc2FmZWAhXG4gIHtjaGFyYWN0ZXI6ICdcXFxcJywgYWZ0ZXI6ICdbXFxcXHJcXFxcbl0nLCBpbkNvbnN0cnVjdDogJ3BocmFzaW5nJ30sXG4gIC8vIEEgcmlnaHQgYnJhY2tldCBjYW4gZXhpdCBsYWJlbHMuXG4gIHtjaGFyYWN0ZXI6ICddJywgaW5Db25zdHJ1Y3Q6IFsnbGFiZWwnLCAncmVmZXJlbmNlJ119LFxuICAvLyBDYXJldCBpcyBub3QgdXNlZCBpbiBtYXJrZG93biBmb3IgY29uc3RydWN0cy5cbiAgLy8gQW4gdW5kZXJzY29yZSBjYW4gc3RhcnQgZW1waGFzaXMsIHN0cm9uZywgb3IgYSB0aGVtYXRpYyBicmVhay5cbiAge2F0QnJlYWs6IHRydWUsIGNoYXJhY3RlcjogJ18nfSxcbiAge2NoYXJhY3RlcjogJ18nLCBpbkNvbnN0cnVjdDogJ3BocmFzaW5nJywgbm90SW5Db25zdHJ1Y3Q6IGZ1bGxQaHJhc2luZ1NwYW5zfSxcbiAgLy8gQSBncmF2ZSBhY2NlbnQgY2FuIHN0YXJ0IGNvZGUgKGZlbmNlZCBvciB0ZXh0KSwgb3IgaXQgY2FuIGJyZWFrIG91dCBvZlxuICAvLyBhIGdyYXZlIGFjY2VudCBjb2RlIGZlbmNlLlxuICB7YXRCcmVhazogdHJ1ZSwgY2hhcmFjdGVyOiAnYCd9LFxuICB7XG4gICAgY2hhcmFjdGVyOiAnYCcsXG4gICAgaW5Db25zdHJ1Y3Q6IFsnY29kZUZlbmNlZExhbmdHcmF2ZUFjY2VudCcsICdjb2RlRmVuY2VkTWV0YUdyYXZlQWNjZW50J11cbiAgfSxcbiAge2NoYXJhY3RlcjogJ2AnLCBpbkNvbnN0cnVjdDogJ3BocmFzaW5nJywgbm90SW5Db25zdHJ1Y3Q6IGZ1bGxQaHJhc2luZ1NwYW5zfSxcbiAgLy8gTGVmdCBicmFjZSwgdmVydGljYWwgYmFyLCByaWdodCBicmFjZSBhcmUgbm90IHVzZWQgaW4gbWFya2Rvd24gZm9yXG4gIC8vIGNvbnN0cnVjdHMuXG4gIC8vIEEgdGlsZGUgY2FuIHN0YXJ0IGNvZGUgKGZlbmNlZCkuXG4gIHthdEJyZWFrOiB0cnVlLCBjaGFyYWN0ZXI6ICd+J31cbl1cbiJdLCJuYW1lcyI6WyJ1bnNhZmUiLCJmdWxsUGhyYXNpbmdTcGFucyIsImNoYXJhY3RlciIsImFmdGVyIiwiaW5Db25zdHJ1Y3QiLCJiZWZvcmUiLCJub3RJbkNvbnN0cnVjdCIsImF0QnJlYWsiXSwicmFuZ2VNYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7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

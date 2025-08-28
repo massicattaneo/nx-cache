@@ -1,0 +1,99 @@
+c0168b22fde4bf6f3bc1e86e0bc5abfe
+/**
+ * @typedef {import('micromark-util-types').Construct} Construct
+ * @typedef {import('micromark-util-types').State} State
+ * @typedef {import('micromark-util-types').TokenizeContext} TokenizeContext
+ * @typedef {import('micromark-util-types').Tokenizer} Tokenizer
+ */ "use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+Object.defineProperty(exports, "labelStartImage", {
+    enumerable: true,
+    get: function() {
+        return labelStartImage;
+    }
+});
+const _labelend = require("./label-end.js");
+const labelStartImage = {
+    name: 'labelStartImage',
+    tokenize: tokenizeLabelStartImage,
+    resolveAll: _labelend.labelEnd.resolveAll
+};
+/**
+ * @this {TokenizeContext}
+ * @type {Tokenizer}
+ */ function tokenizeLabelStartImage(effects, ok, nok) {
+    const self = this;
+    return start;
+    /**
+   * Start of label (image) start.
+   *
+   * ```markdown
+   * > | a ![b] c
+   *       ^
+   * ```
+   *
+   * @type {State}
+   */ function start(code) {
+        effects.enter('labelImage');
+        effects.enter('labelImageMarker');
+        effects.consume(code);
+        effects.exit('labelImageMarker');
+        return open;
+    }
+    /**
+   * After `!`, at `[`.
+   *
+   * ```markdown
+   * > | a ![b] c
+   *        ^
+   * ```
+   *
+   * @type {State}
+   */ function open(code) {
+        if (code === 91) {
+            effects.enter('labelMarker');
+            effects.consume(code);
+            effects.exit('labelMarker');
+            effects.exit('labelImage');
+            return after;
+        }
+        return nok(code);
+    }
+    /**
+   * After `![`.
+   *
+   * ```markdown
+   * > | a ![b] c
+   *         ^
+   * ```
+   *
+   * This is needed in because, when GFM footnotes are enabled, images never
+   * form when started with a `^`.
+   * Instead, links form:
+   *
+   * ```markdown
+   * ![^a](b)
+   *
+   * ![^a][b]
+   *
+   * [b]: c
+   * ```
+   *
+   * ```html
+   * <p>!<a href=\"b\">^a</a></p>
+   * <p>!<a href=\"c\">^a</a></p>
+   * ```
+   *
+   * @type {State}
+   */ function after(code) {
+        // To do: use a new field to do this, this is still needed for
+        // `micromark-extension-gfm-footnote`, but the `label-start-link`
+        // behavior isn’t.
+        // Hidden footnotes hook.
+        /* c8 ignore next 3 */ return code === 94 && '_hiddenFootnoteSupport' in self.parser.constructs ? nok(code) : ok(code);
+    }
+}
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9Vc2Vycy9tY2F0dGFuZW8vd29ya3NwYWNlL2Zyb250ZW5kL25vZGVfbW9kdWxlcy9taWNyb21hcmstY29yZS1jb21tb25tYXJrL2xpYi9sYWJlbC1zdGFydC1pbWFnZS5qcyJdLCJzb3VyY2VzQ29udGVudCI6WyIvKipcbiAqIEB0eXBlZGVmIHtpbXBvcnQoJ21pY3JvbWFyay11dGlsLXR5cGVzJykuQ29uc3RydWN0fSBDb25zdHJ1Y3RcbiAqIEB0eXBlZGVmIHtpbXBvcnQoJ21pY3JvbWFyay11dGlsLXR5cGVzJykuU3RhdGV9IFN0YXRlXG4gKiBAdHlwZWRlZiB7aW1wb3J0KCdtaWNyb21hcmstdXRpbC10eXBlcycpLlRva2VuaXplQ29udGV4dH0gVG9rZW5pemVDb250ZXh0XG4gKiBAdHlwZWRlZiB7aW1wb3J0KCdtaWNyb21hcmstdXRpbC10eXBlcycpLlRva2VuaXplcn0gVG9rZW5pemVyXG4gKi9cblxuaW1wb3J0IHtsYWJlbEVuZH0gZnJvbSAnLi9sYWJlbC1lbmQuanMnXG5cbi8qKiBAdHlwZSB7Q29uc3RydWN0fSAqL1xuZXhwb3J0IGNvbnN0IGxhYmVsU3RhcnRJbWFnZSA9IHtcbiAgbmFtZTogJ2xhYmVsU3RhcnRJbWFnZScsXG4gIHRva2VuaXplOiB0b2tlbml6ZUxhYmVsU3RhcnRJbWFnZSxcbiAgcmVzb2x2ZUFsbDogbGFiZWxFbmQucmVzb2x2ZUFsbFxufVxuXG4vKipcbiAqIEB0aGlzIHtUb2tlbml6ZUNvbnRleHR9XG4gKiBAdHlwZSB7VG9rZW5pemVyfVxuICovXG5mdW5jdGlvbiB0b2tlbml6ZUxhYmVsU3RhcnRJbWFnZShlZmZlY3RzLCBvaywgbm9rKSB7XG4gIGNvbnN0IHNlbGYgPSB0aGlzXG4gIHJldHVybiBzdGFydFxuXG4gIC8qKlxuICAgKiBTdGFydCBvZiBsYWJlbCAoaW1hZ2UpIHN0YXJ0LlxuICAgKlxuICAgKiBgYGBtYXJrZG93blxuICAgKiA+IHwgYSAhW2JdIGNcbiAgICogICAgICAgXlxuICAgKiBgYGBcbiAgICpcbiAgICogQHR5cGUge1N0YXRlfVxuICAgKi9cbiAgZnVuY3Rpb24gc3RhcnQoY29kZSkge1xuICAgIGVmZmVjdHMuZW50ZXIoJ2xhYmVsSW1hZ2UnKVxuICAgIGVmZmVjdHMuZW50ZXIoJ2xhYmVsSW1hZ2VNYXJrZXInKVxuICAgIGVmZmVjdHMuY29uc3VtZShjb2RlKVxuICAgIGVmZmVjdHMuZXhpdCgnbGFiZWxJbWFnZU1hcmtlcicpXG4gICAgcmV0dXJuIG9wZW5cbiAgfVxuXG4gIC8qKlxuICAgKiBBZnRlciBgIWAsIGF0IGBbYC5cbiAgICpcbiAgICogYGBgbWFya2Rvd25cbiAgICogPiB8IGEgIVtiXSBjXG4gICAqICAgICAgICBeXG4gICAqIGBgYFxuICAgKlxuICAgKiBAdHlwZSB7U3RhdGV9XG4gICAqL1xuICBmdW5jdGlvbiBvcGVuKGNvZGUpIHtcbiAgICBpZiAoY29kZSA9PT0gOTEpIHtcbiAgICAgIGVmZmVjdHMuZW50ZXIoJ2xhYmVsTWFya2VyJylcbiAgICAgIGVmZmVjdHMuY29uc3VtZShjb2RlKVxuICAgICAgZWZmZWN0cy5leGl0KCdsYWJlbE1hcmtlcicpXG4gICAgICBlZmZlY3RzLmV4aXQoJ2xhYmVsSW1hZ2UnKVxuICAgICAgcmV0dXJuIGFmdGVyXG4gICAgfVxuICAgIHJldHVybiBub2soY29kZSlcbiAgfVxuXG4gIC8qKlxuICAgKiBBZnRlciBgIVtgLlxuICAgKlxuICAgKiBgYGBtYXJrZG93blxuICAgKiA+IHwgYSAhW2JdIGNcbiAgICogICAgICAgICBeXG4gICAqIGBgYFxuICAgKlxuICAgKiBUaGlzIGlzIG5lZWRlZCBpbiBiZWNhdXNlLCB3aGVuIEdGTSBmb290bm90ZXMgYXJlIGVuYWJsZWQsIGltYWdlcyBuZXZlclxuICAgKiBmb3JtIHdoZW4gc3RhcnRlZCB3aXRoIGEgYF5gLlxuICAgKiBJbnN0ZWFkLCBsaW5rcyBmb3JtOlxuICAgKlxuICAgKiBgYGBtYXJrZG93blxuICAgKiAhW15hXShiKVxuICAgKlxuICAgKiAhW15hXVtiXVxuICAgKlxuICAgKiBbYl06IGNcbiAgICogYGBgXG4gICAqXG4gICAqIGBgYGh0bWxcbiAgICogPHA+ITxhIGhyZWY9XFxcImJcXFwiPl5hPC9hPjwvcD5cbiAgICogPHA+ITxhIGhyZWY9XFxcImNcXFwiPl5hPC9hPjwvcD5cbiAgICogYGBgXG4gICAqXG4gICAqIEB0eXBlIHtTdGF0ZX1cbiAgICovXG4gIGZ1bmN0aW9uIGFmdGVyKGNvZGUpIHtcbiAgICAvLyBUbyBkbzogdXNlIGEgbmV3IGZpZWxkIHRvIGRvIHRoaXMsIHRoaXMgaXMgc3RpbGwgbmVlZGVkIGZvclxuICAgIC8vIGBtaWNyb21hcmstZXh0ZW5zaW9uLWdmbS1mb290bm90ZWAsIGJ1dCB0aGUgYGxhYmVsLXN0YXJ0LWxpbmtgXG4gICAgLy8gYmVoYXZpb3IgaXNu4oCZdC5cbiAgICAvLyBIaWRkZW4gZm9vdG5vdGVzIGhvb2suXG4gICAgLyogYzggaWdub3JlIG5leHQgMyAqL1xuICAgIHJldHVybiBjb2RlID09PSA5NCAmJiAnX2hpZGRlbkZvb3Rub3RlU3VwcG9ydCcgaW4gc2VsZi5wYXJzZXIuY29uc3RydWN0c1xuICAgICAgPyBub2soY29kZSlcbiAgICAgIDogb2soY29kZSlcbiAgfVxufVxuIl0sIm5hbWVzIjpbImxhYmVsU3RhcnRJbWFnZSIsIm5hbWUiLCJ0b2tlbml6ZSIsInRva2VuaXplTGFiZWxTdGFydEltYWdlIiwicmVzb2x2ZUFsbCIsImxhYmVsRW5kIiwiZWZmZWN0cyIsIm9rIiwibm9rIiwic2VsZiIsInN0YXJ0IiwiY29kZSIsImVudGVyIiwiY29uc3VtZSIsImV4aXQiLCJvcGVuIiwiYWZ0ZXIiLCJwYXJzZXIiLCJjb25zdHJ1Y3RzIl0sInJhbmdlTWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OyIsIm1hcHBpbmdzIjoiQUFBQTs7Ozs7Q0FLQzs7OzsrQkFLWUE7OztlQUFBQTs7OzBCQUhVO0FBR2hCLE1BQU1BLGtCQUFrQjtJQUM3QkMsTUFBTTtJQUNOQyxVQUFVQztJQUNWQyxZQUFZQyxrQkFBUSxDQUFDRCxVQUFVO0FBQ2pDO0FBRUE7OztDQUdDLEdBQ0QsU0FBU0Qsd0JBQXdCRyxPQUFPLEVBQUVDLEVBQUUsRUFBRUMsR0FBRztJQUMvQyxNQUFNQyxPQUFPLElBQUk7SUFDakIsT0FBT0M7SUFFUDs7Ozs7Ozs7O0dBU0MsR0FDRCxTQUFTQSxNQUFNQyxJQUFJO1FBQ2pCTCxRQUFRTSxLQUFLLENBQUM7UUFDZE4sUUFBUU0sS0FBSyxDQUFDO1FBQ2ROLFFBQVFPLE9BQU8sQ0FBQ0Y7UUFDaEJMLFFBQVFRLElBQUksQ0FBQztRQUNiLE9BQU9DO0lBQ1Q7SUFFQTs7Ozs7Ozs7O0dBU0MsR0FDRCxTQUFTQSxLQUFLSixJQUFJO1FBQ2hCLElBQUlBLFNBQVMsSUFBSTtZQUNmTCxRQUFRTSxLQUFLLENBQUM7WUFDZE4sUUFBUU8sT0FBTyxDQUFDRjtZQUNoQkwsUUFBUVEsSUFBSSxDQUFDO1lBQ2JSLFFBQVFRLElBQUksQ0FBQztZQUNiLE9BQU9FO1FBQ1Q7UUFDQSxPQUFPUixJQUFJRztJQUNiO0lBRUE7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7O0dBMEJDLEdBQ0QsU0FBU0ssTUFBTUwsSUFBSTtRQUNqQiw4REFBOEQ7UUFDOUQsaUVBQWlFO1FBQ2pFLGtCQUFrQjtRQUNsQix5QkFBeUI7UUFDekIsb0JBQW9CLEdBQ3BCLE9BQU9BLFNBQVMsTUFBTSw0QkFBNEJGLEtBQUtRLE1BQU0sQ0FBQ0MsVUFBVSxHQUNwRVYsSUFBSUcsUUFDSkosR0FBR0k7SUFDVDtBQUNGIn0=

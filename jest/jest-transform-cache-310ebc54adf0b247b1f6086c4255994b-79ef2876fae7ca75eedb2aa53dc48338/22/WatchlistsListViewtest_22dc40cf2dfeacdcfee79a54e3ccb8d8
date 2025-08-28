@@ -1,0 +1,114 @@
+9fbd446960efb3cbfdd74944788f2ae4
+"use strict";
+jest.mock("react-router-dom", ()=>_object_spread_props(_object_spread({}, jest.requireActual("react-router-dom")), {
+        useNavigate: ()=>mockHistoryPush
+    }));
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+const _jsxruntime = require("react/jsx-runtime");
+const _msw = require("@rp/development/msw");
+const _tools = require("@rp/react/web/common/tools");
+const _react = require("@testing-library/react");
+const _WatchlistsListView = require("./WatchlistsListView");
+function _define_property(obj, key, value) {
+    if (key in obj) {
+        Object.defineProperty(obj, key, {
+            value: value,
+            enumerable: true,
+            configurable: true,
+            writable: true
+        });
+    } else {
+        obj[key] = value;
+    }
+    return obj;
+}
+function _object_spread(target) {
+    for(var i = 1; i < arguments.length; i++){
+        var source = arguments[i] != null ? arguments[i] : {};
+        var ownKeys = Object.keys(source);
+        if (typeof Object.getOwnPropertySymbols === "function") {
+            ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function(sym) {
+                return Object.getOwnPropertyDescriptor(source, sym).enumerable;
+            }));
+        }
+        ownKeys.forEach(function(key) {
+            _define_property(target, key, source[key]);
+        });
+    }
+    return target;
+}
+function ownKeys(object, enumerableOnly) {
+    var keys = Object.keys(object);
+    if (Object.getOwnPropertySymbols) {
+        var symbols = Object.getOwnPropertySymbols(object);
+        if (enumerableOnly) {
+            symbols = symbols.filter(function(sym) {
+                return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+            });
+        }
+        keys.push.apply(keys, symbols);
+    }
+    return keys;
+}
+function _object_spread_props(target, source) {
+    source = source != null ? source : {};
+    if (Object.getOwnPropertyDescriptors) {
+        Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+        ownKeys(Object(source)).forEach(function(key) {
+            Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+        });
+    }
+    return target;
+}
+const mockHistoryPush = jest.fn();
+test("should render the watchlists table", async ()=>{
+    jest.useFakeTimers();
+    const wl = await _msw.dbStub.collection("watchlists").findOne();
+    const { getByText, getByRole } = (0, _tools.renderWithProviders)(/*#__PURE__*/ (0, _jsxruntime.jsx)(_WatchlistsListView.WatchlistsListView, {}));
+    await (0, _react.waitFor)(()=>{
+        var _wl_name;
+        const title = getByText((_wl_name = wl === null || wl === void 0 ? void 0 : wl.name) !== null && _wl_name !== void 0 ? _wl_name : "");
+        expect(title).toBeInTheDocument();
+        _react.fireEvent.click(title);
+        global.preview();
+    });
+    // Clicking a title should open the watchlist
+    expect(mockHistoryPush).toHaveBeenCalledWith(`/watchlists/${wl === null || wl === void 0 ? void 0 : wl.id}`, {
+        state: {
+            comingFrom: "user"
+        }
+    });
+    const menu = getByRole("button", {
+        name: "More actions"
+    });
+    _react.fireEvent.click(menu);
+    expect(mockHistoryPush).toHaveBeenCalledTimes(1);
+});
+test("should inform there are no watchlists", async ()=>{
+    await _msw.dbStub.collection("watchlists").clear();
+    const { getByText } = (0, _tools.renderWithProviders)(/*#__PURE__*/ (0, _jsxruntime.jsx)(_WatchlistsListView.WatchlistsListView, {}));
+    await (0, _react.waitFor)(()=>{
+        expect(getByText("You haven't created any watchlist yet")).toBeInTheDocument();
+    });
+});
+test("should permit the user to search", async ()=>{
+    const { container, getByPlaceholderText, getAllByRole } = (0, _tools.renderWithProviders)(/*#__PURE__*/ (0, _jsxruntime.jsx)(_WatchlistsListView.WatchlistsListView, {}));
+    await (0, _react.waitFor)(()=>{
+        expect(container).toContainHTML("Personal Watchlist");
+        expect(getByPlaceholderText("Find your watchlists")).toBeInTheDocument();
+        expect(getAllByRole("listitem").length).toEqual(1);
+    });
+    _react.fireEvent.change(getByPlaceholderText("Find your watchlists"), {
+        target: {
+            value: "Personal XX"
+        }
+    });
+    await (0, _react.waitFor)(()=>{
+        expect(container).toContainHTML("No results found for your search");
+    });
+});
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9Vc2Vycy9tY2F0dGFuZW8vd29ya3NwYWNlL2Zyb250ZW5kL2FwcHMvY2xpZW50LXdlYi9zcmMvYXBwL3BhZ2VzL1dhdGNobGlzdC9XYXRjaGxpc3RzTGlzdFZpZXcudGVzdC50c3giXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgZGJTdHViIH0gZnJvbSBcIkBycC9kZXZlbG9wbWVudC9tc3dcIlxuaW1wb3J0IHsgcmVuZGVyV2l0aFByb3ZpZGVycyB9IGZyb20gXCJAcnAvcmVhY3Qvd2ViL2NvbW1vbi90b29sc1wiXG5pbXBvcnQgeyBmaXJlRXZlbnQsIHdhaXRGb3IgfSBmcm9tIFwiQHRlc3RpbmctbGlicmFyeS9yZWFjdFwiXG5pbXBvcnQgeyBXYXRjaGxpc3RzTGlzdFZpZXcgfSBmcm9tIFwiLi9XYXRjaGxpc3RzTGlzdFZpZXdcIlxuXG5jb25zdCBtb2NrSGlzdG9yeVB1c2ggPSBqZXN0LmZuKClcbmplc3QubW9jayhcInJlYWN0LXJvdXRlci1kb21cIiwgKCkgPT4gKHtcbiAgLi4uamVzdC5yZXF1aXJlQWN0dWFsKFwicmVhY3Qtcm91dGVyLWRvbVwiKSxcbiAgdXNlTmF2aWdhdGU6ICgpID0+IG1vY2tIaXN0b3J5UHVzaCxcbn0pKVxuXG50ZXN0KFwic2hvdWxkIHJlbmRlciB0aGUgd2F0Y2hsaXN0cyB0YWJsZVwiLCBhc3luYyAoKSA9PiB7XG4gIGplc3QudXNlRmFrZVRpbWVycygpXG4gIGNvbnN0IHdsID0gYXdhaXQgZGJTdHViLmNvbGxlY3Rpb24oXCJ3YXRjaGxpc3RzXCIpLmZpbmRPbmUoKVxuICBjb25zdCB7IGdldEJ5VGV4dCwgZ2V0QnlSb2xlIH0gPSByZW5kZXJXaXRoUHJvdmlkZXJzKDxXYXRjaGxpc3RzTGlzdFZpZXcgLz4pXG5cbiAgYXdhaXQgd2FpdEZvcigoKSA9PiB7XG4gICAgY29uc3QgdGl0bGUgPSBnZXRCeVRleHQod2w/Lm5hbWUgPz8gXCJcIilcbiAgICBleHBlY3QodGl0bGUpLnRvQmVJblRoZURvY3VtZW50KClcbiAgICBmaXJlRXZlbnQuY2xpY2sodGl0bGUpXG4gICAgZ2xvYmFsLnByZXZpZXcoKVxuICB9KVxuXG4gIC8vIENsaWNraW5nIGEgdGl0bGUgc2hvdWxkIG9wZW4gdGhlIHdhdGNobGlzdFxuICBleHBlY3QobW9ja0hpc3RvcnlQdXNoKS50b0hhdmVCZWVuQ2FsbGVkV2l0aChgL3dhdGNobGlzdHMvJHt3bD8uaWR9YCwge1xuICAgIHN0YXRlOiB7IGNvbWluZ0Zyb206IFwidXNlclwiIH0sXG4gIH0pXG5cbiAgY29uc3QgbWVudSA9IGdldEJ5Um9sZShcImJ1dHRvblwiLCB7IG5hbWU6IFwiTW9yZSBhY3Rpb25zXCIgfSlcbiAgZmlyZUV2ZW50LmNsaWNrKG1lbnUpXG4gIGV4cGVjdChtb2NrSGlzdG9yeVB1c2gpLnRvSGF2ZUJlZW5DYWxsZWRUaW1lcygxKVxufSlcblxudGVzdChcInNob3VsZCBpbmZvcm0gdGhlcmUgYXJlIG5vIHdhdGNobGlzdHNcIiwgYXN5bmMgKCkgPT4ge1xuICBhd2FpdCBkYlN0dWIuY29sbGVjdGlvbihcIndhdGNobGlzdHNcIikuY2xlYXIoKVxuICBjb25zdCB7IGdldEJ5VGV4dCB9ID0gcmVuZGVyV2l0aFByb3ZpZGVycyg8V2F0Y2hsaXN0c0xpc3RWaWV3IC8+KVxuICBhd2FpdCB3YWl0Rm9yKCgpID0+IHtcbiAgICBleHBlY3QoZ2V0QnlUZXh0KFwiWW91IGhhdmVuJ3QgY3JlYXRlZCBhbnkgd2F0Y2hsaXN0IHlldFwiKSkudG9CZUluVGhlRG9jdW1lbnQoKVxuICB9KVxufSlcblxudGVzdChcInNob3VsZCBwZXJtaXQgdGhlIHVzZXIgdG8gc2VhcmNoXCIsIGFzeW5jICgpID0+IHtcbiAgY29uc3QgeyBjb250YWluZXIsIGdldEJ5UGxhY2Vob2xkZXJUZXh0LCBnZXRBbGxCeVJvbGUgfSA9IHJlbmRlcldpdGhQcm92aWRlcnMoXG4gICAgPFdhdGNobGlzdHNMaXN0VmlldyAvPixcbiAgKVxuICBhd2FpdCB3YWl0Rm9yKCgpID0+IHtcbiAgICBleHBlY3QoY29udGFpbmVyKS50b0NvbnRhaW5IVE1MKFwiUGVyc29uYWwgV2F0Y2hsaXN0XCIpXG4gICAgZXhwZWN0KGdldEJ5UGxhY2Vob2xkZXJUZXh0KFwiRmluZCB5b3VyIHdhdGNobGlzdHNcIikpLnRvQmVJblRoZURvY3VtZW50KClcbiAgICBleHBlY3QoZ2V0QWxsQnlSb2xlKFwibGlzdGl0ZW1cIikubGVuZ3RoKS50b0VxdWFsKDEpXG4gIH0pXG4gIGZpcmVFdmVudC5jaGFuZ2UoZ2V0QnlQbGFjZWhvbGRlclRleHQoXCJGaW5kIHlvdXIgd2F0Y2hsaXN0c1wiKSwge1xuICAgIHRhcmdldDogeyB2YWx1ZTogXCJQZXJzb25hbCBYWFwiIH0sXG4gIH0pXG4gIGF3YWl0IHdhaXRGb3IoKCkgPT4ge1xuICAgIGV4cGVjdChjb250YWluZXIpLnRvQ29udGFpbkhUTUwoXCJObyByZXN1bHRzIGZvdW5kIGZvciB5b3VyIHNlYXJjaFwiKVxuICB9KVxufSlcbiJdLCJuYW1lcyI6WyJqZXN0IiwibW9jayIsInJlcXVpcmVBY3R1YWwiLCJ1c2VOYXZpZ2F0ZSIsIm1vY2tIaXN0b3J5UHVzaCIsImZuIiwidGVzdCIsInVzZUZha2VUaW1lcnMiLCJ3bCIsImRiU3R1YiIsImNvbGxlY3Rpb24iLCJmaW5kT25lIiwiZ2V0QnlUZXh0IiwiZ2V0QnlSb2xlIiwicmVuZGVyV2l0aFByb3ZpZGVycyIsIldhdGNobGlzdHNMaXN0VmlldyIsIndhaXRGb3IiLCJ0aXRsZSIsIm5hbWUiLCJleHBlY3QiLCJ0b0JlSW5UaGVEb2N1bWVudCIsImZpcmVFdmVudCIsImNsaWNrIiwiZ2xvYmFsIiwicHJldmlldyIsInRvSGF2ZUJlZW5DYWxsZWRXaXRoIiwiaWQiLCJzdGF0ZSIsImNvbWluZ0Zyb20iLCJtZW51IiwidG9IYXZlQmVlbkNhbGxlZFRpbWVzIiwiY2xlYXIiLCJjb250YWluZXIiLCJnZXRCeVBsYWNlaG9sZGVyVGV4dCIsImdldEFsbEJ5Um9sZSIsInRvQ29udGFpbkhUTUwiLCJsZW5ndGgiLCJ0b0VxdWFsIiwiY2hhbmdlIiwidGFyZ2V0IiwidmFsdWUiXSwicmFuZ2VNYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7IiwibWFwcGluZ3MiOiI7QUFNQUEsS0FBS0MsSUFBSSxDQUFDLG9CQUFvQixJQUFPLHdDQUNoQ0QsS0FBS0UsYUFBYSxDQUFDO1FBQ3RCQyxhQUFhLElBQU1DOzs7Ozs7cUJBUkU7dUJBQ2E7dUJBQ0Q7b0NBQ0E7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7O0FBRW5DLE1BQU1BLGtCQUFrQkosS0FBS0ssRUFBRTtBQU0vQkMsS0FBSyxzQ0FBc0M7SUFDekNOLEtBQUtPLGFBQWE7SUFDbEIsTUFBTUMsS0FBSyxNQUFNQyxXQUFNLENBQUNDLFVBQVUsQ0FBQyxjQUFjQyxPQUFPO0lBQ3hELE1BQU0sRUFBRUMsU0FBUyxFQUFFQyxTQUFTLEVBQUUsR0FBR0MsSUFBQUEsMEJBQW1CLGdCQUFDLHFCQUFDQyxzQ0FBa0I7SUFFeEUsTUFBTUMsSUFBQUEsY0FBTyxFQUFDO1lBQ1lSO1FBQXhCLE1BQU1TLFFBQVFMLFVBQVVKLENBQUFBLFdBQUFBLGVBQUFBLHlCQUFBQSxHQUFJVSxJQUFJLGNBQVJWLHNCQUFBQSxXQUFZO1FBQ3BDVyxPQUFPRixPQUFPRyxpQkFBaUI7UUFDL0JDLGdCQUFTLENBQUNDLEtBQUssQ0FBQ0w7UUFDaEJNLE9BQU9DLE9BQU87SUFDaEI7SUFFQSw2Q0FBNkM7SUFDN0NMLE9BQU9mLGlCQUFpQnFCLG9CQUFvQixDQUFDLENBQUMsWUFBWSxFQUFFakIsZUFBQUEseUJBQUFBLEdBQUlrQixFQUFFLENBQUMsQ0FBQyxFQUFFO1FBQ3BFQyxPQUFPO1lBQUVDLFlBQVk7UUFBTztJQUM5QjtJQUVBLE1BQU1DLE9BQU9oQixVQUFVLFVBQVU7UUFBRUssTUFBTTtJQUFlO0lBQ3hERyxnQkFBUyxDQUFDQyxLQUFLLENBQUNPO0lBQ2hCVixPQUFPZixpQkFBaUIwQixxQkFBcUIsQ0FBQztBQUNoRDtBQUVBeEIsS0FBSyx5Q0FBeUM7SUFDNUMsTUFBTUcsV0FBTSxDQUFDQyxVQUFVLENBQUMsY0FBY3FCLEtBQUs7SUFDM0MsTUFBTSxFQUFFbkIsU0FBUyxFQUFFLEdBQUdFLElBQUFBLDBCQUFtQixnQkFBQyxxQkFBQ0Msc0NBQWtCO0lBQzdELE1BQU1DLElBQUFBLGNBQU8sRUFBQztRQUNaRyxPQUFPUCxVQUFVLDBDQUEwQ1EsaUJBQWlCO0lBQzlFO0FBQ0Y7QUFFQWQsS0FBSyxvQ0FBb0M7SUFDdkMsTUFBTSxFQUFFMEIsU0FBUyxFQUFFQyxvQkFBb0IsRUFBRUMsWUFBWSxFQUFFLEdBQUdwQixJQUFBQSwwQkFBbUIsZ0JBQzNFLHFCQUFDQyxzQ0FBa0I7SUFFckIsTUFBTUMsSUFBQUEsY0FBTyxFQUFDO1FBQ1pHLE9BQU9hLFdBQVdHLGFBQWEsQ0FBQztRQUNoQ2hCLE9BQU9jLHFCQUFxQix5QkFBeUJiLGlCQUFpQjtRQUN0RUQsT0FBT2UsYUFBYSxZQUFZRSxNQUFNLEVBQUVDLE9BQU8sQ0FBQztJQUNsRDtJQUNBaEIsZ0JBQVMsQ0FBQ2lCLE1BQU0sQ0FBQ0wscUJBQXFCLHlCQUF5QjtRQUM3RE0sUUFBUTtZQUFFQyxPQUFPO1FBQWM7SUFDakM7SUFDQSxNQUFNeEIsSUFBQUEsY0FBTyxFQUFDO1FBQ1pHLE9BQU9hLFdBQVdHLGFBQWEsQ0FBQztJQUNsQztBQUNGIn0=

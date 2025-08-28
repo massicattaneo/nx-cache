@@ -1,0 +1,69 @@
+0babbe131a9ae9c14efa757da26f9553
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+Object.defineProperty(exports, "downloadTableCSV", {
+    enumerable: true,
+    get: function() {
+        return downloadTableCSV;
+    }
+});
+const _datefns = require("date-fns");
+const _utils = require("@rp/common/utils");
+const _utils1 = require("@rp/react/web/common/utils");
+// Helper function to calculate percentage difference for CSV export
+function calculatePercentageDifference(row) {
+    var _row_financialData_companyPriceTarget_data, _row_financialData_companyPriceTarget, _row_financialData, _row_financialData_companyQuote_data, _row_financialData_companyQuote, _row_financialData1;
+    const targetConsensus = (_row_financialData = row.financialData) === null || _row_financialData === void 0 ? void 0 : (_row_financialData_companyPriceTarget = _row_financialData.companyPriceTarget) === null || _row_financialData_companyPriceTarget === void 0 ? void 0 : (_row_financialData_companyPriceTarget_data = _row_financialData_companyPriceTarget.data) === null || _row_financialData_companyPriceTarget_data === void 0 ? void 0 : _row_financialData_companyPriceTarget_data.targetConsensus;
+    const currentPrice = (_row_financialData1 = row.financialData) === null || _row_financialData1 === void 0 ? void 0 : (_row_financialData_companyQuote = _row_financialData1.companyQuote) === null || _row_financialData_companyQuote === void 0 ? void 0 : (_row_financialData_companyQuote_data = _row_financialData_companyQuote.data) === null || _row_financialData_companyQuote_data === void 0 ? void 0 : _row_financialData_companyQuote_data.price;
+    if (targetConsensus && currentPrice && currentPrice !== 0) {
+        return (targetConsensus - currentPrice) / currentPrice * 100;
+    }
+    return undefined;
+}
+function downloadTableCSV({ columns, entities, financialData, watchlistName, dataTab }) {
+    const headers = columns.map((col)=>{
+        var _col_columnDef_meta;
+        var _col_columnDef_meta_menuLabel;
+        const label = (_col_columnDef_meta_menuLabel = (_col_columnDef_meta = col.columnDef.meta) === null || _col_columnDef_meta === void 0 ? void 0 : _col_columnDef_meta.menuLabel) !== null && _col_columnDef_meta_menuLabel !== void 0 ? _col_columnDef_meta_menuLabel : col.id;
+        return `${label}`;
+    });
+    const rows = entities.map((entityInfo)=>{
+        return columns.map((col)=>{
+            var _col_columnDef_meta, _col_accessorFn, _col_accessorFn1;
+            const row = {
+                id: entityInfo.key,
+                entityInfo,
+                financialData: financialData === null || financialData === void 0 ? void 0 : financialData[entityInfo.key]
+            };
+            // Handle calculated columns that don't have direct API field mappings
+            const columnLabel = (_col_columnDef_meta = col.columnDef.meta) === null || _col_columnDef_meta === void 0 ? void 0 : _col_columnDef_meta.menuLabel;
+            if (columnLabel === "% Difference") {
+                var _calculatePercentageDifference;
+                return (_calculatePercentageDifference = calculatePercentageDifference(row)) === null || _calculatePercentageDifference === void 0 ? void 0 : _calculatePercentageDifference.toString();
+            }
+            // Handle columns that multiply by 100 for percentage display
+            const percentageMultiplierColumns = [
+                "SBC to Revenue (LTM)",
+                "R&D intensity (LTM)",
+                "Capex/Sales (LTM)"
+            ];
+            if (columnLabel && percentageMultiplierColumns.includes(columnLabel)) {
+                var _col_accessorFn2;
+                const rawValue = (_col_accessorFn2 = col.accessorFn) === null || _col_accessorFn2 === void 0 ? void 0 : _col_accessorFn2.call(col, row, col.getIndex());
+                return rawValue ? (Number(rawValue) * 100).toString() : undefined;
+            }
+            // Default behavior for regular columns
+            return (_col_accessorFn1 = col.accessorFn) === null || _col_accessorFn1 === void 0 ? void 0 : (_col_accessorFn = _col_accessorFn1.call(col, row, col.getIndex())) === null || _col_accessorFn === void 0 ? void 0 : _col_accessorFn.toString().replace(_utils.INLINE_ATTRIBUTION_REGEX_FOR_REMOVAL, "");
+        });
+    });
+    const filename = `${watchlistName}-${dataTab}-${(0, _datefns.format)(Date.now(), "yyyyMMdd")}.csv`;
+    (0, _utils1.downloadCSVFromMatrix)({
+        headers,
+        rows,
+        filename
+    });
+}
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9Vc2Vycy9tY2F0dGFuZW8vd29ya3NwYWNlL2Zyb250ZW5kL2xpYnMvcmVhY3Qvd2ViL3dhdGNobGlzdHMvc3JjL2xpYi9XYXRjaGxpc3REYXRhVGFicy9kb3dubG9hZFRhYmxlQ3N2LnRzIl0sInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7IGZvcm1hdCB9IGZyb20gXCJkYXRlLWZuc1wiXG5pbXBvcnQgeyBDcXNJdGVtIH0gZnJvbSBcIkBycC9jb21tb24vYXBpLXR5cGVzXCJcbmltcG9ydCB7IElOTElORV9BVFRSSUJVVElPTl9SRUdFWF9GT1JfUkVNT1ZBTCB9IGZyb20gXCJAcnAvY29tbW9uL3V0aWxzXCJcbmltcG9ydCB7IHVzZUZpbmFuY2lhbERhdGEgfSBmcm9tIFwiQHJwL3JlYWN0L3RhbnN0YWNrLWFwaS9maW5hbmNpYWwtZGF0YVwiXG5pbXBvcnQgeyBkb3dubG9hZENTVkZyb21NYXRyaXggfSBmcm9tIFwiQHJwL3JlYWN0L3dlYi9jb21tb24vdXRpbHNcIlxuaW1wb3J0IHsgQ29sdW1uIH0gZnJvbSBcIkB0YW5zdGFjay9yZWFjdC10YWJsZVwiXG5pbXBvcnQgeyBGaW5hbmNlRGF0YVRhYnMgfSBmcm9tIFwiLi4vaG9va3MvdXNlV2F0Y2hsaXN0c0ZpbmFuY2VEYXRhVGFiTmF2aWdhdGlvblwiXG5pbXBvcnQgeyBXYXRjaGxpc3REYXRhVGFic1RhYmxlRW50aXR5IH0gZnJvbSBcIi4vV2F0Y2hsaXN0RGF0YVRhYnNUYWJsZS50eXBlc1wiXG5cbi8vIEhlbHBlciBmdW5jdGlvbiB0byBjYWxjdWxhdGUgcGVyY2VudGFnZSBkaWZmZXJlbmNlIGZvciBDU1YgZXhwb3J0XG5mdW5jdGlvbiBjYWxjdWxhdGVQZXJjZW50YWdlRGlmZmVyZW5jZShyb3c6IFdhdGNobGlzdERhdGFUYWJzVGFibGVFbnRpdHkpOiBudW1iZXIgfCB1bmRlZmluZWQge1xuICBjb25zdCB0YXJnZXRDb25zZW5zdXMgPSByb3cuZmluYW5jaWFsRGF0YT8uY29tcGFueVByaWNlVGFyZ2V0Py5kYXRhPy50YXJnZXRDb25zZW5zdXNcbiAgY29uc3QgY3VycmVudFByaWNlID0gcm93LmZpbmFuY2lhbERhdGE/LmNvbXBhbnlRdW90ZT8uZGF0YT8ucHJpY2VcblxuICBpZiAodGFyZ2V0Q29uc2Vuc3VzICYmIGN1cnJlbnRQcmljZSAmJiBjdXJyZW50UHJpY2UgIT09IDApIHtcbiAgICByZXR1cm4gKCh0YXJnZXRDb25zZW5zdXMgLSBjdXJyZW50UHJpY2UpIC8gY3VycmVudFByaWNlKSAqIDEwMFxuICB9XG4gIHJldHVybiB1bmRlZmluZWRcbn1cblxudHlwZSBQcm9wcyA9IHtcbiAgY29sdW1uczogQXJyYXk8Q29sdW1uPFdhdGNobGlzdERhdGFUYWJzVGFibGVFbnRpdHksIHVua25vd24+PlxuICBlbnRpdGllczogQXJyYXk8Q3FzSXRlbT5cbiAgZmluYW5jaWFsRGF0YTogUmV0dXJuVHlwZTx0eXBlb2YgdXNlRmluYW5jaWFsRGF0YT5cbiAgd2F0Y2hsaXN0TmFtZTogc3RyaW5nXG4gIGRhdGFUYWI6IEZpbmFuY2VEYXRhVGFic1xufVxuXG5mdW5jdGlvbiBkb3dubG9hZFRhYmxlQ1NWKHsgY29sdW1ucywgZW50aXRpZXMsIGZpbmFuY2lhbERhdGEsIHdhdGNobGlzdE5hbWUsIGRhdGFUYWIgfTogUHJvcHMpIHtcbiAgY29uc3QgaGVhZGVycyA9IGNvbHVtbnMubWFwKGNvbCA9PiB7XG4gICAgY29uc3QgbGFiZWwgPSBjb2wuY29sdW1uRGVmLm1ldGE/Lm1lbnVMYWJlbCA/PyBjb2wuaWRcbiAgICByZXR1cm4gYCR7bGFiZWx9YFxuICB9KVxuXG4gIGNvbnN0IHJvd3MgPSBlbnRpdGllcy5tYXAoZW50aXR5SW5mbyA9PiB7XG4gICAgcmV0dXJuIGNvbHVtbnMubWFwKGNvbCA9PiB7XG4gICAgICBjb25zdCByb3cgPSB7XG4gICAgICAgIGlkOiBlbnRpdHlJbmZvLmtleSxcbiAgICAgICAgZW50aXR5SW5mbyxcbiAgICAgICAgZmluYW5jaWFsRGF0YTogZmluYW5jaWFsRGF0YT8uW2VudGl0eUluZm8ua2V5XSxcbiAgICAgIH1cblxuICAgICAgLy8gSGFuZGxlIGNhbGN1bGF0ZWQgY29sdW1ucyB0aGF0IGRvbid0IGhhdmUgZGlyZWN0IEFQSSBmaWVsZCBtYXBwaW5nc1xuICAgICAgY29uc3QgY29sdW1uTGFiZWwgPSBjb2wuY29sdW1uRGVmLm1ldGE/Lm1lbnVMYWJlbFxuICAgICAgaWYgKGNvbHVtbkxhYmVsID09PSBcIiUgRGlmZmVyZW5jZVwiKSB7XG4gICAgICAgIHJldHVybiBjYWxjdWxhdGVQZXJjZW50YWdlRGlmZmVyZW5jZShyb3cpPy50b1N0cmluZygpXG4gICAgICB9XG5cbiAgICAgIC8vIEhhbmRsZSBjb2x1bW5zIHRoYXQgbXVsdGlwbHkgYnkgMTAwIGZvciBwZXJjZW50YWdlIGRpc3BsYXlcbiAgICAgIGNvbnN0IHBlcmNlbnRhZ2VNdWx0aXBsaWVyQ29sdW1ucyA9IFtcbiAgICAgICAgXCJTQkMgdG8gUmV2ZW51ZSAoTFRNKVwiLFxuICAgICAgICBcIlImRCBpbnRlbnNpdHkgKExUTSlcIixcbiAgICAgICAgXCJDYXBleC9TYWxlcyAoTFRNKVwiLFxuICAgICAgXVxuXG4gICAgICBpZiAoY29sdW1uTGFiZWwgJiYgcGVyY2VudGFnZU11bHRpcGxpZXJDb2x1bW5zLmluY2x1ZGVzKGNvbHVtbkxhYmVsKSkge1xuICAgICAgICBjb25zdCByYXdWYWx1ZSA9IGNvbC5hY2Nlc3NvckZuPy4ocm93LCBjb2wuZ2V0SW5kZXgoKSlcbiAgICAgICAgcmV0dXJuIHJhd1ZhbHVlID8gKE51bWJlcihyYXdWYWx1ZSkgKiAxMDApLnRvU3RyaW5nKCkgOiB1bmRlZmluZWRcbiAgICAgIH1cblxuICAgICAgLy8gRGVmYXVsdCBiZWhhdmlvciBmb3IgcmVndWxhciBjb2x1bW5zXG4gICAgICByZXR1cm4gY29sXG4gICAgICAgIC5hY2Nlc3NvckZuPy4ocm93LCBjb2wuZ2V0SW5kZXgoKSlcbiAgICAgICAgPy50b1N0cmluZygpXG4gICAgICAgIC5yZXBsYWNlKElOTElORV9BVFRSSUJVVElPTl9SRUdFWF9GT1JfUkVNT1ZBTCwgXCJcIilcbiAgICB9KVxuICB9KVxuXG4gIGNvbnN0IGZpbGVuYW1lID0gYCR7d2F0Y2hsaXN0TmFtZX0tJHtkYXRhVGFifS0ke2Zvcm1hdChEYXRlLm5vdygpLCBcInl5eXlNTWRkXCIpfS5jc3ZgXG4gIGRvd25sb2FkQ1NWRnJvbU1hdHJpeCh7IGhlYWRlcnMsIHJvd3MsIGZpbGVuYW1lIH0pXG59XG5cbmV4cG9ydCB7IGRvd25sb2FkVGFibGVDU1YgfVxuIl0sIm5hbWVzIjpbImRvd25sb2FkVGFibGVDU1YiLCJjYWxjdWxhdGVQZXJjZW50YWdlRGlmZmVyZW5jZSIsInJvdyIsInRhcmdldENvbnNlbnN1cyIsImZpbmFuY2lhbERhdGEiLCJjb21wYW55UHJpY2VUYXJnZXQiLCJkYXRhIiwiY3VycmVudFByaWNlIiwiY29tcGFueVF1b3RlIiwicHJpY2UiLCJ1bmRlZmluZWQiLCJjb2x1bW5zIiwiZW50aXRpZXMiLCJ3YXRjaGxpc3ROYW1lIiwiZGF0YVRhYiIsImhlYWRlcnMiLCJtYXAiLCJjb2wiLCJsYWJlbCIsImNvbHVtbkRlZiIsIm1ldGEiLCJtZW51TGFiZWwiLCJpZCIsInJvd3MiLCJlbnRpdHlJbmZvIiwia2V5IiwiY29sdW1uTGFiZWwiLCJ0b1N0cmluZyIsInBlcmNlbnRhZ2VNdWx0aXBsaWVyQ29sdW1ucyIsImluY2x1ZGVzIiwicmF3VmFsdWUiLCJhY2Nlc3NvckZuIiwiZ2V0SW5kZXgiLCJOdW1iZXIiLCJyZXBsYWNlIiwiSU5MSU5FX0FUVFJJQlVUSU9OX1JFR0VYX0ZPUl9SRU1PVkFMIiwiZmlsZW5hbWUiLCJmb3JtYXQiLCJEYXRlIiwibm93IiwiZG93bmxvYWRDU1ZGcm9tTWF0cml4Il0sInJhbmdlTWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OyIsIm1hcHBpbmdzIjoiOzs7OytCQXdFU0E7OztlQUFBQTs7O3lCQXhFYzt1QkFFOEI7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

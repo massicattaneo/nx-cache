@@ -1,0 +1,89 @@
+e185133c9d14c5deec64861866de1236
+/**
+ * @typedef {import('mdast').ImageReference} ImageReference
+ * @typedef {import('mdast').Parents} Parents
+ * @typedef {import('../types.js').Info} Info
+ * @typedef {import('../types.js').State} State
+ */ "use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+Object.defineProperty(exports, "imageReference", {
+    enumerable: true,
+    get: function() {
+        return imageReference;
+    }
+});
+function _define_property(obj, key, value) {
+    if (key in obj) {
+        Object.defineProperty(obj, key, {
+            value: value,
+            enumerable: true,
+            configurable: true,
+            writable: true
+        });
+    } else {
+        obj[key] = value;
+    }
+    return obj;
+}
+function _object_spread(target) {
+    for(var i = 1; i < arguments.length; i++){
+        var source = arguments[i] != null ? arguments[i] : {};
+        var ownKeys = Object.keys(source);
+        if (typeof Object.getOwnPropertySymbols === "function") {
+            ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function(sym) {
+                return Object.getOwnPropertyDescriptor(source, sym).enumerable;
+            }));
+        }
+        ownKeys.forEach(function(key) {
+            _define_property(target, key, source[key]);
+        });
+    }
+    return target;
+}
+imageReference.peek = imageReferencePeek;
+function imageReference(node, _, state, info) {
+    const type = node.referenceType;
+    const exit = state.enter('imageReference');
+    let subexit = state.enter('label');
+    const tracker = state.createTracker(info);
+    let value = tracker.move('![');
+    const alt = state.safe(node.alt, _object_spread({
+        before: value,
+        after: ']'
+    }, tracker.current()));
+    value += tracker.move(alt + '][');
+    subexit();
+    // Hide the fact that we’re in phrasing, because escapes don’t work.
+    const stack = state.stack;
+    state.stack = [];
+    subexit = state.enter('reference');
+    // Note: for proper tracking, we should reset the output positions when we end
+    // up making a `shortcut` reference, because then there is no brace output.
+    // Practically, in that case, there is no content, so it doesn’t matter that
+    // we’ve tracked one too many characters.
+    const reference = state.safe(state.associationId(node), _object_spread({
+        before: value,
+        after: ']'
+    }, tracker.current()));
+    subexit();
+    state.stack = stack;
+    exit();
+    if (type === 'full' || !alt || alt !== reference) {
+        value += tracker.move(reference + ']');
+    } else if (type === 'shortcut') {
+        // Remove the unwanted `[`.
+        value = value.slice(0, -1);
+    } else {
+        value += tracker.move(']');
+    }
+    return value;
+}
+/**
+ * @returns {string}
+ */ function imageReferencePeek() {
+    return '!';
+}
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9Vc2Vycy9tY2F0dGFuZW8vd29ya3NwYWNlL2Zyb250ZW5kL25vZGVfbW9kdWxlcy9tZGFzdC11dGlsLXRvLW1hcmtkb3duL2xpYi9oYW5kbGUvaW1hZ2UtcmVmZXJlbmNlLmpzIl0sInNvdXJjZXNDb250ZW50IjpbIi8qKlxuICogQHR5cGVkZWYge2ltcG9ydCgnbWRhc3QnKS5JbWFnZVJlZmVyZW5jZX0gSW1hZ2VSZWZlcmVuY2VcbiAqIEB0eXBlZGVmIHtpbXBvcnQoJ21kYXN0JykuUGFyZW50c30gUGFyZW50c1xuICogQHR5cGVkZWYge2ltcG9ydCgnLi4vdHlwZXMuanMnKS5JbmZvfSBJbmZvXG4gKiBAdHlwZWRlZiB7aW1wb3J0KCcuLi90eXBlcy5qcycpLlN0YXRlfSBTdGF0ZVxuICovXG5cbmltYWdlUmVmZXJlbmNlLnBlZWsgPSBpbWFnZVJlZmVyZW5jZVBlZWtcblxuLyoqXG4gKiBAcGFyYW0ge0ltYWdlUmVmZXJlbmNlfSBub2RlXG4gKiBAcGFyYW0ge1BhcmVudHMgfCB1bmRlZmluZWR9IF9cbiAqIEBwYXJhbSB7U3RhdGV9IHN0YXRlXG4gKiBAcGFyYW0ge0luZm99IGluZm9cbiAqIEByZXR1cm5zIHtzdHJpbmd9XG4gKi9cbmV4cG9ydCBmdW5jdGlvbiBpbWFnZVJlZmVyZW5jZShub2RlLCBfLCBzdGF0ZSwgaW5mbykge1xuICBjb25zdCB0eXBlID0gbm9kZS5yZWZlcmVuY2VUeXBlXG4gIGNvbnN0IGV4aXQgPSBzdGF0ZS5lbnRlcignaW1hZ2VSZWZlcmVuY2UnKVxuICBsZXQgc3ViZXhpdCA9IHN0YXRlLmVudGVyKCdsYWJlbCcpXG4gIGNvbnN0IHRyYWNrZXIgPSBzdGF0ZS5jcmVhdGVUcmFja2VyKGluZm8pXG4gIGxldCB2YWx1ZSA9IHRyYWNrZXIubW92ZSgnIVsnKVxuICBjb25zdCBhbHQgPSBzdGF0ZS5zYWZlKG5vZGUuYWx0LCB7XG4gICAgYmVmb3JlOiB2YWx1ZSxcbiAgICBhZnRlcjogJ10nLFxuICAgIC4uLnRyYWNrZXIuY3VycmVudCgpXG4gIH0pXG4gIHZhbHVlICs9IHRyYWNrZXIubW92ZShhbHQgKyAnXVsnKVxuXG4gIHN1YmV4aXQoKVxuICAvLyBIaWRlIHRoZSBmYWN0IHRoYXQgd2XigJlyZSBpbiBwaHJhc2luZywgYmVjYXVzZSBlc2NhcGVzIGRvbuKAmXQgd29yay5cbiAgY29uc3Qgc3RhY2sgPSBzdGF0ZS5zdGFja1xuICBzdGF0ZS5zdGFjayA9IFtdXG4gIHN1YmV4aXQgPSBzdGF0ZS5lbnRlcigncmVmZXJlbmNlJylcbiAgLy8gTm90ZTogZm9yIHByb3BlciB0cmFja2luZywgd2Ugc2hvdWxkIHJlc2V0IHRoZSBvdXRwdXQgcG9zaXRpb25zIHdoZW4gd2UgZW5kXG4gIC8vIHVwIG1ha2luZyBhIGBzaG9ydGN1dGAgcmVmZXJlbmNlLCBiZWNhdXNlIHRoZW4gdGhlcmUgaXMgbm8gYnJhY2Ugb3V0cHV0LlxuICAvLyBQcmFjdGljYWxseSwgaW4gdGhhdCBjYXNlLCB0aGVyZSBpcyBubyBjb250ZW50LCBzbyBpdCBkb2VzbuKAmXQgbWF0dGVyIHRoYXRcbiAgLy8gd2XigJl2ZSB0cmFja2VkIG9uZSB0b28gbWFueSBjaGFyYWN0ZXJzLlxuICBjb25zdCByZWZlcmVuY2UgPSBzdGF0ZS5zYWZlKHN0YXRlLmFzc29jaWF0aW9uSWQobm9kZSksIHtcbiAgICBiZWZvcmU6IHZhbHVlLFxuICAgIGFmdGVyOiAnXScsXG4gICAgLi4udHJhY2tlci5jdXJyZW50KClcbiAgfSlcbiAgc3ViZXhpdCgpXG4gIHN0YXRlLnN0YWNrID0gc3RhY2tcbiAgZXhpdCgpXG5cbiAgaWYgKHR5cGUgPT09ICdmdWxsJyB8fCAhYWx0IHx8IGFsdCAhPT0gcmVmZXJlbmNlKSB7XG4gICAgdmFsdWUgKz0gdHJhY2tlci5tb3ZlKHJlZmVyZW5jZSArICddJylcbiAgfSBlbHNlIGlmICh0eXBlID09PSAnc2hvcnRjdXQnKSB7XG4gICAgLy8gUmVtb3ZlIHRoZSB1bndhbnRlZCBgW2AuXG4gICAgdmFsdWUgPSB2YWx1ZS5zbGljZSgwLCAtMSlcbiAgfSBlbHNlIHtcbiAgICB2YWx1ZSArPSB0cmFja2VyLm1vdmUoJ10nKVxuICB9XG5cbiAgcmV0dXJuIHZhbHVlXG59XG5cbi8qKlxuICogQHJldHVybnMge3N0cmluZ31cbiAqL1xuZnVuY3Rpb24gaW1hZ2VSZWZlcmVuY2VQZWVrKCkge1xuICByZXR1cm4gJyEnXG59XG4iXSwibmFtZXMiOlsiaW1hZ2VSZWZlcmVuY2UiLCJwZWVrIiwiaW1hZ2VSZWZlcmVuY2VQZWVrIiwibm9kZSIsIl8iLCJzdGF0ZSIsImluZm8iLCJ0eXBlIiwicmVmZXJlbmNlVHlwZSIsImV4aXQiLCJlbnRlciIsInN1YmV4aXQiLCJ0cmFja2VyIiwiY3JlYXRlVHJhY2tlciIsInZhbHVlIiwibW92ZSIsImFsdCIsInNhZmUiLCJiZWZvcmUiLCJhZnRlciIsImN1cnJlbnQiLCJzdGFjayIsInJlZmVyZW5jZSIsImFzc29jaWF0aW9uSWQiLCJzbGljZSJdLCJyYW5nZU1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OyIsIm1hcHBpbmdzIjoiQUFBQTs7Ozs7Q0FLQzs7OzsrQkFXZUE7OztlQUFBQTs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OztBQVRoQkEsZUFBZUMsSUFBSSxHQUFHQztBQVNmLFNBQVNGLGVBQWVHLElBQUksRUFBRUMsQ0FBQyxFQUFFQyxLQUFLLEVBQUVDLElBQUk7SUFDakQsTUFBTUMsT0FBT0osS0FBS0ssYUFBYTtJQUMvQixNQUFNQyxPQUFPSixNQUFNSyxLQUFLLENBQUM7SUFDekIsSUFBSUMsVUFBVU4sTUFBTUssS0FBSyxDQUFDO0lBQzFCLE1BQU1FLFVBQVVQLE1BQU1RLGFBQWEsQ0FBQ1A7SUFDcEMsSUFBSVEsUUFBUUYsUUFBUUcsSUFBSSxDQUFDO0lBQ3pCLE1BQU1DLE1BQU1YLE1BQU1ZLElBQUksQ0FBQ2QsS0FBS2EsR0FBRyxFQUFFO1FBQy9CRSxRQUFRSjtRQUNSSyxPQUFPO09BQ0pQLFFBQVFRLE9BQU87SUFFcEJOLFNBQVNGLFFBQVFHLElBQUksQ0FBQ0MsTUFBTTtJQUU1Qkw7SUFDQSxvRUFBb0U7SUFDcEUsTUFBTVUsUUFBUWhCLE1BQU1nQixLQUFLO0lBQ3pCaEIsTUFBTWdCLEtBQUssR0FBRyxFQUFFO0lBQ2hCVixVQUFVTixNQUFNSyxLQUFLLENBQUM7SUFDdEIsOEVBQThFO0lBQzlFLDJFQUEyRTtJQUMzRSw0RUFBNEU7SUFDNUUseUNBQXlDO0lBQ3pDLE1BQU1ZLFlBQVlqQixNQUFNWSxJQUFJLENBQUNaLE1BQU1rQixhQUFhLENBQUNwQixPQUFPO1FBQ3REZSxRQUFRSjtRQUNSSyxPQUFPO09BQ0pQLFFBQVFRLE9BQU87SUFFcEJUO0lBQ0FOLE1BQU1nQixLQUFLLEdBQUdBO0lBQ2RaO0lBRUEsSUFBSUYsU0FBUyxVQUFVLENBQUNTLE9BQU9BLFFBQVFNLFdBQVc7UUFDaERSLFNBQVNGLFFBQVFHLElBQUksQ0FBQ08sWUFBWTtJQUNwQyxPQUFPLElBQUlmLFNBQVMsWUFBWTtRQUM5QiwyQkFBMkI7UUFDM0JPLFFBQVFBLE1BQU1VLEtBQUssQ0FBQyxHQUFHLENBQUM7SUFDMUIsT0FBTztRQUNMVixTQUFTRixRQUFRRyxJQUFJLENBQUM7SUFDeEI7SUFFQSxPQUFPRDtBQUNUO0FBRUE7O0NBRUMsR0FDRCxTQUFTWjtJQUNQLE9BQU87QUFDVCJ9

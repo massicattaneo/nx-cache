@@ -1,0 +1,53 @@
+209ca5535cf1732603a285f0a4e030bd
+/**
+ * @typedef {import('micromark-util-types').Event} Event
+ */ /**
+ * @typedef {'center' | 'left' | 'none' | 'right'} Align
+ */ /**
+ * Figure out the alignment of a GFM table.
+ *
+ * @param {Readonly<Array<Event>>} events
+ *   List of events.
+ * @param {number} index
+ *   Table enter event.
+ * @returns {Array<Align>}
+ *   List of aligns.
+ */ "use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+Object.defineProperty(exports, "gfmTableAlign", {
+    enumerable: true,
+    get: function() {
+        return gfmTableAlign;
+    }
+});
+function gfmTableAlign(events, index) {
+    let inDelimiterRow = false;
+    /** @type {Array<Align>} */ const align = [];
+    while(index < events.length){
+        const event = events[index];
+        if (inDelimiterRow) {
+            if (event[0] === 'enter') {
+                // Start of alignment value: set a new column.
+                // To do: `markdown-rs` uses `tableDelimiterCellValue`.
+                if (event[1].type === 'tableContent') {
+                    align.push(events[index + 1][1].type === 'tableDelimiterMarker' ? 'left' : 'none');
+                }
+            } else if (event[1].type === 'tableContent') {
+                if (events[index - 1][1].type === 'tableDelimiterMarker') {
+                    const alignIndex = align.length - 1;
+                    align[alignIndex] = align[alignIndex] === 'left' ? 'center' : 'right';
+                }
+            } else if (event[1].type === 'tableDelimiterRow') {
+                break;
+            }
+        } else if (event[0] === 'enter' && event[1].type === 'tableDelimiterRow') {
+            inDelimiterRow = true;
+        }
+        index += 1;
+    }
+    return align;
+}
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9Vc2Vycy9tY2F0dGFuZW8vd29ya3NwYWNlL2Zyb250ZW5kL25vZGVfbW9kdWxlcy9taWNyb21hcmstZXh0ZW5zaW9uLWdmbS10YWJsZS9saWIvaW5mZXIuanMiXSwic291cmNlc0NvbnRlbnQiOlsiLyoqXG4gKiBAdHlwZWRlZiB7aW1wb3J0KCdtaWNyb21hcmstdXRpbC10eXBlcycpLkV2ZW50fSBFdmVudFxuICovXG5cbi8qKlxuICogQHR5cGVkZWYgeydjZW50ZXInIHwgJ2xlZnQnIHwgJ25vbmUnIHwgJ3JpZ2h0J30gQWxpZ25cbiAqL1xuXG4vKipcbiAqIEZpZ3VyZSBvdXQgdGhlIGFsaWdubWVudCBvZiBhIEdGTSB0YWJsZS5cbiAqXG4gKiBAcGFyYW0ge1JlYWRvbmx5PEFycmF5PEV2ZW50Pj59IGV2ZW50c1xuICogICBMaXN0IG9mIGV2ZW50cy5cbiAqIEBwYXJhbSB7bnVtYmVyfSBpbmRleFxuICogICBUYWJsZSBlbnRlciBldmVudC5cbiAqIEByZXR1cm5zIHtBcnJheTxBbGlnbj59XG4gKiAgIExpc3Qgb2YgYWxpZ25zLlxuICovXG5leHBvcnQgZnVuY3Rpb24gZ2ZtVGFibGVBbGlnbihldmVudHMsIGluZGV4KSB7XG4gIGxldCBpbkRlbGltaXRlclJvdyA9IGZhbHNlXG4gIC8qKiBAdHlwZSB7QXJyYXk8QWxpZ24+fSAqL1xuICBjb25zdCBhbGlnbiA9IFtdXG4gIHdoaWxlIChpbmRleCA8IGV2ZW50cy5sZW5ndGgpIHtcbiAgICBjb25zdCBldmVudCA9IGV2ZW50c1tpbmRleF1cbiAgICBpZiAoaW5EZWxpbWl0ZXJSb3cpIHtcbiAgICAgIGlmIChldmVudFswXSA9PT0gJ2VudGVyJykge1xuICAgICAgICAvLyBTdGFydCBvZiBhbGlnbm1lbnQgdmFsdWU6IHNldCBhIG5ldyBjb2x1bW4uXG4gICAgICAgIC8vIFRvIGRvOiBgbWFya2Rvd24tcnNgIHVzZXMgYHRhYmxlRGVsaW1pdGVyQ2VsbFZhbHVlYC5cbiAgICAgICAgaWYgKGV2ZW50WzFdLnR5cGUgPT09ICd0YWJsZUNvbnRlbnQnKSB7XG4gICAgICAgICAgYWxpZ24ucHVzaChcbiAgICAgICAgICAgIGV2ZW50c1tpbmRleCArIDFdWzFdLnR5cGUgPT09ICd0YWJsZURlbGltaXRlck1hcmtlcidcbiAgICAgICAgICAgICAgPyAnbGVmdCdcbiAgICAgICAgICAgICAgOiAnbm9uZSdcbiAgICAgICAgICApXG4gICAgICAgIH1cbiAgICAgIH1cbiAgICAgIC8vIEV4aXRzOlxuICAgICAgLy8gRW5kIG9mIGFsaWdubWVudCB2YWx1ZTogY2hhbmdlIHRoZSBjb2x1bW4uXG4gICAgICAvLyBUbyBkbzogYG1hcmtkb3duLXJzYCB1c2VzIGB0YWJsZURlbGltaXRlckNlbGxWYWx1ZWAuXG4gICAgICBlbHNlIGlmIChldmVudFsxXS50eXBlID09PSAndGFibGVDb250ZW50Jykge1xuICAgICAgICBpZiAoZXZlbnRzW2luZGV4IC0gMV1bMV0udHlwZSA9PT0gJ3RhYmxlRGVsaW1pdGVyTWFya2VyJykge1xuICAgICAgICAgIGNvbnN0IGFsaWduSW5kZXggPSBhbGlnbi5sZW5ndGggLSAxXG4gICAgICAgICAgYWxpZ25bYWxpZ25JbmRleF0gPSBhbGlnblthbGlnbkluZGV4XSA9PT0gJ2xlZnQnID8gJ2NlbnRlcicgOiAncmlnaHQnXG4gICAgICAgIH1cbiAgICAgIH1cbiAgICAgIC8vIERvbmUhXG4gICAgICBlbHNlIGlmIChldmVudFsxXS50eXBlID09PSAndGFibGVEZWxpbWl0ZXJSb3cnKSB7XG4gICAgICAgIGJyZWFrXG4gICAgICB9XG4gICAgfSBlbHNlIGlmIChldmVudFswXSA9PT0gJ2VudGVyJyAmJiBldmVudFsxXS50eXBlID09PSAndGFibGVEZWxpbWl0ZXJSb3cnKSB7XG4gICAgICBpbkRlbGltaXRlclJvdyA9IHRydWVcbiAgICB9XG4gICAgaW5kZXggKz0gMVxuICB9XG4gIHJldHVybiBhbGlnblxufVxuIl0sIm5hbWVzIjpbImdmbVRhYmxlQWxpZ24iLCJldmVudHMiLCJpbmRleCIsImluRGVsaW1pdGVyUm93IiwiYWxpZ24iLCJsZW5ndGgiLCJldmVudCIsInR5cGUiLCJwdXNoIiwiYWxpZ25JbmRleCJdLCJyYW5nZU1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OyIsIm1hcHBpbmdzIjoiQUFBQTs7Q0FFQyxHQUVEOztDQUVDLEdBRUQ7Ozs7Ozs7OztDQVNDOzs7OytCQUNlQTs7O2VBQUFBOzs7QUFBVCxTQUFTQSxjQUFjQyxNQUFNLEVBQUVDLEtBQUs7SUFDekMsSUFBSUMsaUJBQWlCO0lBQ3JCLHlCQUF5QixHQUN6QixNQUFNQyxRQUFRLEVBQUU7SUFDaEIsTUFBT0YsUUFBUUQsT0FBT0ksTUFBTSxDQUFFO1FBQzVCLE1BQU1DLFFBQVFMLE1BQU0sQ0FBQ0MsTUFBTTtRQUMzQixJQUFJQyxnQkFBZ0I7WUFDbEIsSUFBSUcsS0FBSyxDQUFDLEVBQUUsS0FBSyxTQUFTO2dCQUN4Qiw4Q0FBOEM7Z0JBQzlDLHVEQUF1RDtnQkFDdkQsSUFBSUEsS0FBSyxDQUFDLEVBQUUsQ0FBQ0MsSUFBSSxLQUFLLGdCQUFnQjtvQkFDcENILE1BQU1JLElBQUksQ0FDUlAsTUFBTSxDQUFDQyxRQUFRLEVBQUUsQ0FBQyxFQUFFLENBQUNLLElBQUksS0FBSyx5QkFDMUIsU0FDQTtnQkFFUjtZQUNGLE9BSUssSUFBSUQsS0FBSyxDQUFDLEVBQUUsQ0FBQ0MsSUFBSSxLQUFLLGdCQUFnQjtnQkFDekMsSUFBSU4sTUFBTSxDQUFDQyxRQUFRLEVBQUUsQ0FBQyxFQUFFLENBQUNLLElBQUksS0FBSyx3QkFBd0I7b0JBQ3hELE1BQU1FLGFBQWFMLE1BQU1DLE1BQU0sR0FBRztvQkFDbENELEtBQUssQ0FBQ0ssV0FBVyxHQUFHTCxLQUFLLENBQUNLLFdBQVcsS0FBSyxTQUFTLFdBQVc7Z0JBQ2hFO1lBQ0YsT0FFSyxJQUFJSCxLQUFLLENBQUMsRUFBRSxDQUFDQyxJQUFJLEtBQUsscUJBQXFCO2dCQUM5QztZQUNGO1FBQ0YsT0FBTyxJQUFJRCxLQUFLLENBQUMsRUFBRSxLQUFLLFdBQVdBLEtBQUssQ0FBQyxFQUFFLENBQUNDLElBQUksS0FBSyxxQkFBcUI7WUFDeEVKLGlCQUFpQjtRQUNuQjtRQUNBRCxTQUFTO0lBQ1g7SUFDQSxPQUFPRTtBQUNUIn0=

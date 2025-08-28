@@ -1,0 +1,143 @@
+d70e05e1dc69307dbee33f831c03a943
+/**
+ * @typedef {import('micromark-util-types').Code} Code
+ * @typedef {import('micromark-util-types').Construct} Construct
+ * @typedef {import('micromark-util-types').State} State
+ * @typedef {import('micromark-util-types').TokenizeContext} TokenizeContext
+ * @typedef {import('micromark-util-types').Tokenizer} Tokenizer
+ */ "use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+Object.defineProperty(exports, "characterReference", {
+    enumerable: true,
+    get: function() {
+        return characterReference;
+    }
+});
+const _decodenamedcharacterreference = require("decode-named-character-reference");
+const _micromarkutilcharacter = require("micromark-util-character");
+const characterReference = {
+    name: 'characterReference',
+    tokenize: tokenizeCharacterReference
+};
+/**
+ * @this {TokenizeContext}
+ * @type {Tokenizer}
+ */ function tokenizeCharacterReference(effects, ok, nok) {
+    const self = this;
+    let size = 0;
+    /** @type {number} */ let max;
+    /** @type {(code: Code) => boolean} */ let test;
+    return start;
+    /**
+   * Start of character reference.
+   *
+   * ```markdown
+   * > | a&amp;b
+   *      ^
+   * > | a&#123;b
+   *      ^
+   * > | a&#x9;b
+   *      ^
+   * ```
+   *
+   * @type {State}
+   */ function start(code) {
+        effects.enter('characterReference');
+        effects.enter('characterReferenceMarker');
+        effects.consume(code);
+        effects.exit('characterReferenceMarker');
+        return open;
+    }
+    /**
+   * After `&`, at `#` for numeric references or alphanumeric for named
+   * references.
+   *
+   * ```markdown
+   * > | a&amp;b
+   *       ^
+   * > | a&#123;b
+   *       ^
+   * > | a&#x9;b
+   *       ^
+   * ```
+   *
+   * @type {State}
+   */ function open(code) {
+        if (code === 35) {
+            effects.enter('characterReferenceMarkerNumeric');
+            effects.consume(code);
+            effects.exit('characterReferenceMarkerNumeric');
+            return numeric;
+        }
+        effects.enter('characterReferenceValue');
+        max = 31;
+        test = _micromarkutilcharacter.asciiAlphanumeric;
+        return value(code);
+    }
+    /**
+   * After `#`, at `x` for hexadecimals or digit for decimals.
+   *
+   * ```markdown
+   * > | a&#123;b
+   *        ^
+   * > | a&#x9;b
+   *        ^
+   * ```
+   *
+   * @type {State}
+   */ function numeric(code) {
+        if (code === 88 || code === 120) {
+            effects.enter('characterReferenceMarkerHexadecimal');
+            effects.consume(code);
+            effects.exit('characterReferenceMarkerHexadecimal');
+            effects.enter('characterReferenceValue');
+            max = 6;
+            test = _micromarkutilcharacter.asciiHexDigit;
+            return value;
+        }
+        effects.enter('characterReferenceValue');
+        max = 7;
+        test = _micromarkutilcharacter.asciiDigit;
+        return value(code);
+    }
+    /**
+   * After markers (`&#x`, `&#`, or `&`), in value, before `;`.
+   *
+   * The character reference kind defines what and how many characters are
+   * allowed.
+   *
+   * ```markdown
+   * > | a&amp;b
+   *       ^^^
+   * > | a&#123;b
+   *        ^^^
+   * > | a&#x9;b
+   *         ^
+   * ```
+   *
+   * @type {State}
+   */ function value(code) {
+        if (code === 59 && size) {
+            const token = effects.exit('characterReferenceValue');
+            if (test === _micromarkutilcharacter.asciiAlphanumeric && !(0, _decodenamedcharacterreference.decodeNamedCharacterReference)(self.sliceSerialize(token))) {
+                return nok(code);
+            }
+            // To do: `markdown-rs` uses a different name:
+            // `CharacterReferenceMarkerSemi`.
+            effects.enter('characterReferenceMarker');
+            effects.consume(code);
+            effects.exit('characterReferenceMarker');
+            effects.exit('characterReference');
+            return ok;
+        }
+        if (test(code) && size++ < max) {
+            effects.consume(code);
+            return value;
+        }
+        return nok(code);
+    }
+}
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9Vc2Vycy9tY2F0dGFuZW8vd29ya3NwYWNlL2Zyb250ZW5kL25vZGVfbW9kdWxlcy9taWNyb21hcmstY29yZS1jb21tb25tYXJrL2xpYi9jaGFyYWN0ZXItcmVmZXJlbmNlLmpzIl0sInNvdXJjZXNDb250ZW50IjpbIi8qKlxuICogQHR5cGVkZWYge2ltcG9ydCgnbWljcm9tYXJrLXV0aWwtdHlwZXMnKS5Db2RlfSBDb2RlXG4gKiBAdHlwZWRlZiB7aW1wb3J0KCdtaWNyb21hcmstdXRpbC10eXBlcycpLkNvbnN0cnVjdH0gQ29uc3RydWN0XG4gKiBAdHlwZWRlZiB7aW1wb3J0KCdtaWNyb21hcmstdXRpbC10eXBlcycpLlN0YXRlfSBTdGF0ZVxuICogQHR5cGVkZWYge2ltcG9ydCgnbWljcm9tYXJrLXV0aWwtdHlwZXMnKS5Ub2tlbml6ZUNvbnRleHR9IFRva2VuaXplQ29udGV4dFxuICogQHR5cGVkZWYge2ltcG9ydCgnbWljcm9tYXJrLXV0aWwtdHlwZXMnKS5Ub2tlbml6ZXJ9IFRva2VuaXplclxuICovXG5cbmltcG9ydCB7ZGVjb2RlTmFtZWRDaGFyYWN0ZXJSZWZlcmVuY2V9IGZyb20gJ2RlY29kZS1uYW1lZC1jaGFyYWN0ZXItcmVmZXJlbmNlJ1xuaW1wb3J0IHtcbiAgYXNjaWlBbHBoYW51bWVyaWMsXG4gIGFzY2lpRGlnaXQsXG4gIGFzY2lpSGV4RGlnaXRcbn0gZnJvbSAnbWljcm9tYXJrLXV0aWwtY2hhcmFjdGVyJ1xuLyoqIEB0eXBlIHtDb25zdHJ1Y3R9ICovXG5leHBvcnQgY29uc3QgY2hhcmFjdGVyUmVmZXJlbmNlID0ge1xuICBuYW1lOiAnY2hhcmFjdGVyUmVmZXJlbmNlJyxcbiAgdG9rZW5pemU6IHRva2VuaXplQ2hhcmFjdGVyUmVmZXJlbmNlXG59XG5cbi8qKlxuICogQHRoaXMge1Rva2VuaXplQ29udGV4dH1cbiAqIEB0eXBlIHtUb2tlbml6ZXJ9XG4gKi9cbmZ1bmN0aW9uIHRva2VuaXplQ2hhcmFjdGVyUmVmZXJlbmNlKGVmZmVjdHMsIG9rLCBub2spIHtcbiAgY29uc3Qgc2VsZiA9IHRoaXNcbiAgbGV0IHNpemUgPSAwXG4gIC8qKiBAdHlwZSB7bnVtYmVyfSAqL1xuICBsZXQgbWF4XG4gIC8qKiBAdHlwZSB7KGNvZGU6IENvZGUpID0+IGJvb2xlYW59ICovXG4gIGxldCB0ZXN0XG4gIHJldHVybiBzdGFydFxuXG4gIC8qKlxuICAgKiBTdGFydCBvZiBjaGFyYWN0ZXIgcmVmZXJlbmNlLlxuICAgKlxuICAgKiBgYGBtYXJrZG93blxuICAgKiA+IHwgYSZhbXA7YlxuICAgKiAgICAgIF5cbiAgICogPiB8IGEmIzEyMztiXG4gICAqICAgICAgXlxuICAgKiA+IHwgYSYjeDk7YlxuICAgKiAgICAgIF5cbiAgICogYGBgXG4gICAqXG4gICAqIEB0eXBlIHtTdGF0ZX1cbiAgICovXG4gIGZ1bmN0aW9uIHN0YXJ0KGNvZGUpIHtcbiAgICBlZmZlY3RzLmVudGVyKCdjaGFyYWN0ZXJSZWZlcmVuY2UnKVxuICAgIGVmZmVjdHMuZW50ZXIoJ2NoYXJhY3RlclJlZmVyZW5jZU1hcmtlcicpXG4gICAgZWZmZWN0cy5jb25zdW1lKGNvZGUpXG4gICAgZWZmZWN0cy5leGl0KCdjaGFyYWN0ZXJSZWZlcmVuY2VNYXJrZXInKVxuICAgIHJldHVybiBvcGVuXG4gIH1cblxuICAvKipcbiAgICogQWZ0ZXIgYCZgLCBhdCBgI2AgZm9yIG51bWVyaWMgcmVmZXJlbmNlcyBvciBhbHBoYW51bWVyaWMgZm9yIG5hbWVkXG4gICAqIHJlZmVyZW5jZXMuXG4gICAqXG4gICAqIGBgYG1hcmtkb3duXG4gICAqID4gfCBhJmFtcDtiXG4gICAqICAgICAgIF5cbiAgICogPiB8IGEmIzEyMztiXG4gICAqICAgICAgIF5cbiAgICogPiB8IGEmI3g5O2JcbiAgICogICAgICAgXlxuICAgKiBgYGBcbiAgICpcbiAgICogQHR5cGUge1N0YXRlfVxuICAgKi9cbiAgZnVuY3Rpb24gb3Blbihjb2RlKSB7XG4gICAgaWYgKGNvZGUgPT09IDM1KSB7XG4gICAgICBlZmZlY3RzLmVudGVyKCdjaGFyYWN0ZXJSZWZlcmVuY2VNYXJrZXJOdW1lcmljJylcbiAgICAgIGVmZmVjdHMuY29uc3VtZShjb2RlKVxuICAgICAgZWZmZWN0cy5leGl0KCdjaGFyYWN0ZXJSZWZlcmVuY2VNYXJrZXJOdW1lcmljJylcbiAgICAgIHJldHVybiBudW1lcmljXG4gICAgfVxuICAgIGVmZmVjdHMuZW50ZXIoJ2NoYXJhY3RlclJlZmVyZW5jZVZhbHVlJylcbiAgICBtYXggPSAzMVxuICAgIHRlc3QgPSBhc2NpaUFscGhhbnVtZXJpY1xuICAgIHJldHVybiB2YWx1ZShjb2RlKVxuICB9XG5cbiAgLyoqXG4gICAqIEFmdGVyIGAjYCwgYXQgYHhgIGZvciBoZXhhZGVjaW1hbHMgb3IgZGlnaXQgZm9yIGRlY2ltYWxzLlxuICAgKlxuICAgKiBgYGBtYXJrZG93blxuICAgKiA+IHwgYSYjMTIzO2JcbiAgICogICAgICAgIF5cbiAgICogPiB8IGEmI3g5O2JcbiAgICogICAgICAgIF5cbiAgICogYGBgXG4gICAqXG4gICAqIEB0eXBlIHtTdGF0ZX1cbiAgICovXG4gIGZ1bmN0aW9uIG51bWVyaWMoY29kZSkge1xuICAgIGlmIChjb2RlID09PSA4OCB8fCBjb2RlID09PSAxMjApIHtcbiAgICAgIGVmZmVjdHMuZW50ZXIoJ2NoYXJhY3RlclJlZmVyZW5jZU1hcmtlckhleGFkZWNpbWFsJylcbiAgICAgIGVmZmVjdHMuY29uc3VtZShjb2RlKVxuICAgICAgZWZmZWN0cy5leGl0KCdjaGFyYWN0ZXJSZWZlcmVuY2VNYXJrZXJIZXhhZGVjaW1hbCcpXG4gICAgICBlZmZlY3RzLmVudGVyKCdjaGFyYWN0ZXJSZWZlcmVuY2VWYWx1ZScpXG4gICAgICBtYXggPSA2XG4gICAgICB0ZXN0ID0gYXNjaWlIZXhEaWdpdFxuICAgICAgcmV0dXJuIHZhbHVlXG4gICAgfVxuICAgIGVmZmVjdHMuZW50ZXIoJ2NoYXJhY3RlclJlZmVyZW5jZVZhbHVlJylcbiAgICBtYXggPSA3XG4gICAgdGVzdCA9IGFzY2lpRGlnaXRcbiAgICByZXR1cm4gdmFsdWUoY29kZSlcbiAgfVxuXG4gIC8qKlxuICAgKiBBZnRlciBtYXJrZXJzIChgJiN4YCwgYCYjYCwgb3IgYCZgKSwgaW4gdmFsdWUsIGJlZm9yZSBgO2AuXG4gICAqXG4gICAqIFRoZSBjaGFyYWN0ZXIgcmVmZXJlbmNlIGtpbmQgZGVmaW5lcyB3aGF0IGFuZCBob3cgbWFueSBjaGFyYWN0ZXJzIGFyZVxuICAgKiBhbGxvd2VkLlxuICAgKlxuICAgKiBgYGBtYXJrZG93blxuICAgKiA+IHwgYSZhbXA7YlxuICAgKiAgICAgICBeXl5cbiAgICogPiB8IGEmIzEyMztiXG4gICAqICAgICAgICBeXl5cbiAgICogPiB8IGEmI3g5O2JcbiAgICogICAgICAgICBeXG4gICAqIGBgYFxuICAgKlxuICAgKiBAdHlwZSB7U3RhdGV9XG4gICAqL1xuICBmdW5jdGlvbiB2YWx1ZShjb2RlKSB7XG4gICAgaWYgKGNvZGUgPT09IDU5ICYmIHNpemUpIHtcbiAgICAgIGNvbnN0IHRva2VuID0gZWZmZWN0cy5leGl0KCdjaGFyYWN0ZXJSZWZlcmVuY2VWYWx1ZScpXG4gICAgICBpZiAoXG4gICAgICAgIHRlc3QgPT09IGFzY2lpQWxwaGFudW1lcmljICYmXG4gICAgICAgICFkZWNvZGVOYW1lZENoYXJhY3RlclJlZmVyZW5jZShzZWxmLnNsaWNlU2VyaWFsaXplKHRva2VuKSlcbiAgICAgICkge1xuICAgICAgICByZXR1cm4gbm9rKGNvZGUpXG4gICAgICB9XG5cbiAgICAgIC8vIFRvIGRvOiBgbWFya2Rvd24tcnNgIHVzZXMgYSBkaWZmZXJlbnQgbmFtZTpcbiAgICAgIC8vIGBDaGFyYWN0ZXJSZWZlcmVuY2VNYXJrZXJTZW1pYC5cbiAgICAgIGVmZmVjdHMuZW50ZXIoJ2NoYXJhY3RlclJlZmVyZW5jZU1hcmtlcicpXG4gICAgICBlZmZlY3RzLmNvbnN1bWUoY29kZSlcbiAgICAgIGVmZmVjdHMuZXhpdCgnY2hhcmFjdGVyUmVmZXJlbmNlTWFya2VyJylcbiAgICAgIGVmZmVjdHMuZXhpdCgnY2hhcmFjdGVyUmVmZXJlbmNlJylcbiAgICAgIHJldHVybiBva1xuICAgIH1cbiAgICBpZiAodGVzdChjb2RlKSAmJiBzaXplKysgPCBtYXgpIHtcbiAgICAgIGVmZmVjdHMuY29uc3VtZShjb2RlKVxuICAgICAgcmV0dXJuIHZhbHVlXG4gICAgfVxuICAgIHJldHVybiBub2soY29kZSlcbiAgfVxufVxuIl0sIm5hbWVzIjpbImNoYXJhY3RlclJlZmVyZW5jZSIsIm5hbWUiLCJ0b2tlbml6ZSIsInRva2VuaXplQ2hhcmFjdGVyUmVmZXJlbmNlIiwiZWZmZWN0cyIsIm9rIiwibm9rIiwic2VsZiIsInNpemUiLCJtYXgiLCJ0ZXN0Iiwic3RhcnQiLCJjb2RlIiwiZW50ZXIiLCJjb25zdW1lIiwiZXhpdCIsIm9wZW4iLCJudW1lcmljIiwiYXNjaWlBbHBoYW51bWVyaWMiLCJ2YWx1ZSIsImFzY2lpSGV4RGlnaXQiLCJhc2NpaURpZ2l0IiwidG9rZW4iLCJkZWNvZGVOYW1lZENoYXJhY3RlclJlZmVyZW5jZSIsInNsaWNlU2VyaWFsaXplIl0sInJhbmdlTWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7IiwibWFwcGluZ3MiOiJBQUFBOzs7Ozs7Q0FNQzs7OzsrQkFTWUE7OztlQUFBQTs7OytDQVArQjt3Q0FLckM7QUFFQSxNQUFNQSxxQkFBcUI7SUFDaENDLE1BQU07SUFDTkMsVUFBVUM7QUFDWjtBQUVBOzs7Q0FHQyxHQUNELFNBQVNBLDJCQUEyQkMsT0FBTyxFQUFFQyxFQUFFLEVBQUVDLEdBQUc7SUFDbEQsTUFBTUMsT0FBTyxJQUFJO0lBQ2pCLElBQUlDLE9BQU87SUFDWCxtQkFBbUIsR0FDbkIsSUFBSUM7SUFDSixvQ0FBb0MsR0FDcEMsSUFBSUM7SUFDSixPQUFPQztJQUVQOzs7Ozs7Ozs7Ozs7O0dBYUMsR0FDRCxTQUFTQSxNQUFNQyxJQUFJO1FBQ2pCUixRQUFRUyxLQUFLLENBQUM7UUFDZFQsUUFBUVMsS0FBSyxDQUFDO1FBQ2RULFFBQVFVLE9BQU8sQ0FBQ0Y7UUFDaEJSLFFBQVFXLElBQUksQ0FBQztRQUNiLE9BQU9DO0lBQ1Q7SUFFQTs7Ozs7Ozs7Ozs7Ozs7R0FjQyxHQUNELFNBQVNBLEtBQUtKLElBQUk7UUFDaEIsSUFBSUEsU0FBUyxJQUFJO1lBQ2ZSLFFBQVFTLEtBQUssQ0FBQztZQUNkVCxRQUFRVSxPQUFPLENBQUNGO1lBQ2hCUixRQUFRVyxJQUFJLENBQUM7WUFDYixPQUFPRTtRQUNUO1FBQ0FiLFFBQVFTLEtBQUssQ0FBQztRQUNkSixNQUFNO1FBQ05DLE9BQU9RLHlDQUFpQjtRQUN4QixPQUFPQyxNQUFNUDtJQUNmO0lBRUE7Ozs7Ozs7Ozs7O0dBV0MsR0FDRCxTQUFTSyxRQUFRTCxJQUFJO1FBQ25CLElBQUlBLFNBQVMsTUFBTUEsU0FBUyxLQUFLO1lBQy9CUixRQUFRUyxLQUFLLENBQUM7WUFDZFQsUUFBUVUsT0FBTyxDQUFDRjtZQUNoQlIsUUFBUVcsSUFBSSxDQUFDO1lBQ2JYLFFBQVFTLEtBQUssQ0FBQztZQUNkSixNQUFNO1lBQ05DLE9BQU9VLHFDQUFhO1lBQ3BCLE9BQU9EO1FBQ1Q7UUFDQWYsUUFBUVMsS0FBSyxDQUFDO1FBQ2RKLE1BQU07UUFDTkMsT0FBT1csa0NBQVU7UUFDakIsT0FBT0YsTUFBTVA7SUFDZjtJQUVBOzs7Ozs7Ozs7Ozs7Ozs7O0dBZ0JDLEdBQ0QsU0FBU08sTUFBTVAsSUFBSTtRQUNqQixJQUFJQSxTQUFTLE1BQU1KLE1BQU07WUFDdkIsTUFBTWMsUUFBUWxCLFFBQVFXLElBQUksQ0FBQztZQUMzQixJQUNFTCxTQUFTUSx5Q0FBaUIsSUFDMUIsQ0FBQ0ssSUFBQUEsNERBQTZCLEVBQUNoQixLQUFLaUIsY0FBYyxDQUFDRixTQUNuRDtnQkFDQSxPQUFPaEIsSUFBSU07WUFDYjtZQUVBLDhDQUE4QztZQUM5QyxrQ0FBa0M7WUFDbENSLFFBQVFTLEtBQUssQ0FBQztZQUNkVCxRQUFRVSxPQUFPLENBQUNGO1lBQ2hCUixRQUFRVyxJQUFJLENBQUM7WUFDYlgsUUFBUVcsSUFBSSxDQUFDO1lBQ2IsT0FBT1Y7UUFDVDtRQUNBLElBQUlLLEtBQUtFLFNBQVNKLFNBQVNDLEtBQUs7WUFDOUJMLFFBQVFVLE9BQU8sQ0FBQ0Y7WUFDaEIsT0FBT087UUFDVDtRQUNBLE9BQU9iLElBQUlNO0lBQ2I7QUFDRiJ9

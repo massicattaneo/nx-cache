@@ -1,0 +1,134 @@
+519dd2594be1126ed1fe2cc5551186de
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+function _export(target, all) {
+    for(var name in all)Object.defineProperty(target, name, {
+        enumerable: true,
+        get: all[name]
+    });
+}
+_export(exports, {
+    customerIOLogout: function() {
+        return customerIOLogout;
+    },
+    customerIoIdentify: function() {
+        return customerIoIdentify;
+    },
+    customerIoInit: function() {
+        return customerIoInit;
+    },
+    customerIoPageView: function() {
+        return customerIoPageView;
+    },
+    customerIoTrack: function() {
+        return customerIoTrack;
+    }
+});
+const _cdpanalyticsbrowser = require("@customerio/cdp-analytics-browser");
+const _environment = require("@rp/common/environment");
+const _stringifyData = require("../stringifyData");
+function _define_property(obj, key, value) {
+    if (key in obj) {
+        Object.defineProperty(obj, key, {
+            value: value,
+            enumerable: true,
+            configurable: true,
+            writable: true
+        });
+    } else {
+        obj[key] = value;
+    }
+    return obj;
+}
+function _object_spread(target) {
+    for(var i = 1; i < arguments.length; i++){
+        var source = arguments[i] != null ? arguments[i] : {};
+        var ownKeys = Object.keys(source);
+        if (typeof Object.getOwnPropertySymbols === "function") {
+            ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function(sym) {
+                return Object.getOwnPropertyDescriptor(source, sym).enumerable;
+            }));
+        }
+        ownKeys.forEach(function(key) {
+            _define_property(target, key, source[key]);
+        });
+    }
+    return target;
+}
+function ownKeys(object, enumerableOnly) {
+    var keys = Object.keys(object);
+    if (Object.getOwnPropertySymbols) {
+        var symbols = Object.getOwnPropertySymbols(object);
+        if (enumerableOnly) {
+            symbols = symbols.filter(function(sym) {
+                return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+            });
+        }
+        keys.push.apply(keys, symbols);
+    }
+    return keys;
+}
+function _object_spread_props(target, source) {
+    source = source != null ? source : {};
+    if (Object.getOwnPropertyDescriptors) {
+        Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+        ownKeys(Object(source)).forEach(function(key) {
+            Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+        });
+    }
+    return target;
+}
+let analytics;
+const customerIoInit = (env)=>{
+    const { writeKey, hostName } = _environment.environment.customerIo;
+    if (env === "testing" || !writeKey) return;
+    analytics = new _cdpanalyticsbrowser.AnalyticsBrowser();
+    analytics.load({
+        writeKey,
+        cdnURL: `https://${hostName}`
+    }, {
+        integrations: {
+            "Customer.io Data Pipelines": {
+                apiHost: `${hostName}/v1`,
+                protocol: "https"
+            }
+        }
+    });
+};
+const customerIoIdentify = (user)=>{
+    analytics === null || analytics === void 0 ? void 0 : analytics.identify(user.userId, {
+        company: {
+            id: user.companyId
+        },
+        platform: "web"
+    });
+};
+const customerIoTrack = (eventData)=>{
+    // Don't track login and userAuthenticated events here
+    if ([
+        "rp.login",
+        "rp.userAuthenticated"
+    ].includes(eventData.name)) return;
+    const stringifiedData = (0, _stringifyData.stringifyData)(eventData.data);
+    const enrichedData = _object_spread_props(_object_spread({}, stringifiedData), {
+        platform: "web",
+        platform_type: null
+    });
+    analytics === null || analytics === void 0 ? void 0 : analytics.track(eventData.name, enrichedData);
+};
+const customerIoPageView = async (pageName, properties)=>{
+    const props = typeof properties === "function" ? await properties() : properties;
+    analytics === null || analytics === void 0 ? void 0 : analytics.page(pageName, props);
+};
+const customerIOLogout = ()=>{
+    customerIoTrack({
+        name: "logout",
+        data: {}
+    });
+    analytics === null || analytics === void 0 ? void 0 : analytics.reset();
+};
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9Vc2Vycy9tY2F0dGFuZW8vd29ya3NwYWNlL2Zyb250ZW5kL2xpYnMvYWRhcHRlcnMvc3JjL2xpYi93ZWIvY3VzdG9tZXItaW8udHMiXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgQW5hbHl0aWNzQnJvd3NlciB9IGZyb20gXCJAY3VzdG9tZXJpby9jZHAtYW5hbHl0aWNzLWJyb3dzZXJcIlxuaW1wb3J0IHsgZW52aXJvbm1lbnQgfSBmcm9tIFwiQHJwL2NvbW1vbi9lbnZpcm9ubWVudFwiXG5pbXBvcnQgeyBDdXN0b21lcklPVXNlckRhdGEsIEN1c3RvbWVySW9FdmVudFByb3BlcnRpZXMgfSBmcm9tIFwiLi4vYWRhcHRlcnMudHlwZVwiXG5pbXBvcnQgeyBzdHJpbmdpZnlEYXRhIH0gZnJvbSBcIi4uL3N0cmluZ2lmeURhdGFcIlxuXG5sZXQgYW5hbHl0aWNzOiBBbmFseXRpY3NCcm93c2VyXG5cbmV4cG9ydCBjb25zdCBjdXN0b21lcklvSW5pdCA9IChlbnY6IHN0cmluZykgPT4ge1xuICBjb25zdCB7IHdyaXRlS2V5LCBob3N0TmFtZSB9ID0gZW52aXJvbm1lbnQuY3VzdG9tZXJJb1xuICBpZiAoZW52ID09PSBcInRlc3RpbmdcIiB8fCAhd3JpdGVLZXkpIHJldHVyblxuICBhbmFseXRpY3MgPSBuZXcgQW5hbHl0aWNzQnJvd3NlcigpXG4gIGFuYWx5dGljcy5sb2FkKFxuICAgIHtcbiAgICAgIHdyaXRlS2V5LFxuICAgICAgY2RuVVJMOiBgaHR0cHM6Ly8ke2hvc3ROYW1lfWAsXG4gICAgfSxcbiAgICB7XG4gICAgICBpbnRlZ3JhdGlvbnM6IHtcbiAgICAgICAgXCJDdXN0b21lci5pbyBEYXRhIFBpcGVsaW5lc1wiOiB7XG4gICAgICAgICAgYXBpSG9zdDogYCR7aG9zdE5hbWV9L3YxYCxcbiAgICAgICAgICBwcm90b2NvbDogXCJodHRwc1wiLFxuICAgICAgICB9LFxuICAgICAgfSxcbiAgICB9LFxuICApXG59XG5cbmV4cG9ydCBjb25zdCBjdXN0b21lcklvSWRlbnRpZnkgPSAodXNlcjogQ3VzdG9tZXJJT1VzZXJEYXRhKSA9PiB7XG4gIGFuYWx5dGljcz8uaWRlbnRpZnkodXNlci51c2VySWQsIHtcbiAgICBjb21wYW55OiB7XG4gICAgICBpZDogdXNlci5jb21wYW55SWQsXG4gICAgfSxcbiAgICBwbGF0Zm9ybTogXCJ3ZWJcIixcbiAgfSlcbn1cblxuZXhwb3J0IGNvbnN0IGN1c3RvbWVySW9UcmFjayA9IChldmVudERhdGE6IHsgbmFtZTogc3RyaW5nOyBkYXRhOiBDdXN0b21lcklvRXZlbnRQcm9wZXJ0aWVzIH0pID0+IHtcbiAgLy8gRG9uJ3QgdHJhY2sgbG9naW4gYW5kIHVzZXJBdXRoZW50aWNhdGVkIGV2ZW50cyBoZXJlXG4gIGlmIChbXCJycC5sb2dpblwiLCBcInJwLnVzZXJBdXRoZW50aWNhdGVkXCJdLmluY2x1ZGVzKGV2ZW50RGF0YS5uYW1lKSkgcmV0dXJuXG5cbiAgY29uc3Qgc3RyaW5naWZpZWREYXRhID0gc3RyaW5naWZ5RGF0YShldmVudERhdGEuZGF0YSlcbiAgY29uc3QgZW5yaWNoZWREYXRhID0geyAuLi5zdHJpbmdpZmllZERhdGEsIHBsYXRmb3JtOiBcIndlYlwiLCBwbGF0Zm9ybV90eXBlOiBudWxsIH1cblxuICBhbmFseXRpY3M/LnRyYWNrKGV2ZW50RGF0YS5uYW1lLCBlbnJpY2hlZERhdGEpXG59XG5cbmV4cG9ydCBjb25zdCBjdXN0b21lcklvUGFnZVZpZXcgPSBhc3luYyAoXG4gIHBhZ2VOYW1lPzogc3RyaW5nLFxuICBwcm9wZXJ0aWVzPzogQ3VzdG9tZXJJb0V2ZW50UHJvcGVydGllcyB8ICgoKSA9PiBQcm9taXNlPEN1c3RvbWVySW9FdmVudFByb3BlcnRpZXM+KSxcbikgPT4ge1xuICBjb25zdCBwcm9wcyA9IHR5cGVvZiBwcm9wZXJ0aWVzID09PSBcImZ1bmN0aW9uXCIgPyBhd2FpdCBwcm9wZXJ0aWVzKCkgOiBwcm9wZXJ0aWVzXG4gIGFuYWx5dGljcz8ucGFnZShwYWdlTmFtZSwgcHJvcHMpXG59XG5cbmV4cG9ydCBjb25zdCBjdXN0b21lcklPTG9nb3V0ID0gKCkgPT4ge1xuICBjdXN0b21lcklvVHJhY2soeyBuYW1lOiBcImxvZ291dFwiLCBkYXRhOiB7fSB9KVxuICBhbmFseXRpY3M/LnJlc2V0KClcbn1cbiJdLCJuYW1lcyI6WyJjdXN0b21lcklPTG9nb3V0IiwiY3VzdG9tZXJJb0lkZW50aWZ5IiwiY3VzdG9tZXJJb0luaXQiLCJjdXN0b21lcklvUGFnZVZpZXciLCJjdXN0b21lcklvVHJhY2siLCJhbmFseXRpY3MiLCJlbnYiLCJ3cml0ZUtleSIsImhvc3ROYW1lIiwiZW52aXJvbm1lbnQiLCJjdXN0b21lcklvIiwiQW5hbHl0aWNzQnJvd3NlciIsImxvYWQiLCJjZG5VUkwiLCJpbnRlZ3JhdGlvbnMiLCJhcGlIb3N0IiwicHJvdG9jb2wiLCJ1c2VyIiwiaWRlbnRpZnkiLCJ1c2VySWQiLCJjb21wYW55IiwiaWQiLCJjb21wYW55SWQiLCJwbGF0Zm9ybSIsImV2ZW50RGF0YSIsImluY2x1ZGVzIiwibmFtZSIsInN0cmluZ2lmaWVkRGF0YSIsInN0cmluZ2lmeURhdGEiLCJkYXRhIiwiZW5yaWNoZWREYXRhIiwicGxhdGZvcm1fdHlwZSIsInRyYWNrIiwicGFnZU5hbWUiLCJwcm9wZXJ0aWVzIiwicHJvcHMiLCJwYWdlIiwicmVzZXQiXSwicmFuZ2VNYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OzsiLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7SUFzRGFBLGdCQUFnQjtlQUFoQkE7O0lBM0JBQyxrQkFBa0I7ZUFBbEJBOztJQXBCQUMsY0FBYztlQUFkQTs7SUF1Q0FDLGtCQUFrQjtlQUFsQkE7O0lBVkFDLGVBQWU7ZUFBZkE7OztxQ0FwQ29COzZCQUNMOytCQUVFOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OztBQUU5QixJQUFJQztBQUVHLE1BQU1ILGlCQUFpQixDQUFDSTtJQUM3QixNQUFNLEVBQUVDLFFBQVEsRUFBRUMsUUFBUSxFQUFFLEdBQUdDLHdCQUFXLENBQUNDLFVBQVU7SUFDckQsSUFBSUosUUFBUSxhQUFhLENBQUNDLFVBQVU7SUFDcENGLFlBQVksSUFBSU0scUNBQWdCO0lBQ2hDTixVQUFVTyxJQUFJLENBQ1o7UUFDRUw7UUFDQU0sUUFBUSxDQUFDLFFBQVEsRUFBRUwsU0FBUyxDQUFDO0lBQy9CLEdBQ0E7UUFDRU0sY0FBYztZQUNaLDhCQUE4QjtnQkFDNUJDLFNBQVMsQ0FBQyxFQUFFUCxTQUFTLEdBQUcsQ0FBQztnQkFDekJRLFVBQVU7WUFDWjtRQUNGO0lBQ0Y7QUFFSjtBQUVPLE1BQU1mLHFCQUFxQixDQUFDZ0I7SUFDakNaLHNCQUFBQSxnQ0FBQUEsVUFBV2EsUUFBUSxDQUFDRCxLQUFLRSxNQUFNLEVBQUU7UUFDL0JDLFNBQVM7WUFDUEMsSUFBSUosS0FBS0ssU0FBUztRQUNwQjtRQUNBQyxVQUFVO0lBQ1o7QUFDRjtBQUVPLE1BQU1uQixrQkFBa0IsQ0FBQ29CO0lBQzlCLHNEQUFzRDtJQUN0RCxJQUFJO1FBQUM7UUFBWTtLQUF1QixDQUFDQyxRQUFRLENBQUNELFVBQVVFLElBQUksR0FBRztJQUVuRSxNQUFNQyxrQkFBa0JDLElBQUFBLDRCQUFhLEVBQUNKLFVBQVVLLElBQUk7SUFDcEQsTUFBTUMsZUFBZSx3Q0FBS0g7UUFBaUJKLFVBQVU7UUFBT1EsZUFBZTs7SUFFM0UxQixzQkFBQUEsZ0NBQUFBLFVBQVcyQixLQUFLLENBQUNSLFVBQVVFLElBQUksRUFBRUk7QUFDbkM7QUFFTyxNQUFNM0IscUJBQXFCLE9BQ2hDOEIsVUFDQUM7SUFFQSxNQUFNQyxRQUFRLE9BQU9ELGVBQWUsYUFBYSxNQUFNQSxlQUFlQTtJQUN0RTdCLHNCQUFBQSxnQ0FBQUEsVUFBVytCLElBQUksQ0FBQ0gsVUFBVUU7QUFDNUI7QUFFTyxNQUFNbkMsbUJBQW1CO0lBQzlCSSxnQkFBZ0I7UUFBRXNCLE1BQU07UUFBVUcsTUFBTSxDQUFDO0lBQUU7SUFDM0N4QixzQkFBQUEsZ0NBQUFBLFVBQVdnQyxLQUFLO0FBQ2xCIn0=

@@ -1,0 +1,62 @@
+c3882ebf755d4df6bca3aab7b5032f96
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+Object.defineProperty(exports, "Proxy", {
+    enumerable: true,
+    get: function() {
+        return Proxy;
+    }
+});
+const _Stack = require("./Stack");
+function _define_property(obj, key, value) {
+    if (key in obj) {
+        Object.defineProperty(obj, key, {
+            value: value,
+            enumerable: true,
+            configurable: true,
+            writable: true
+        });
+    } else {
+        obj[key] = value;
+    }
+    return obj;
+}
+class Proxy {
+    before(callback) {
+        this._beforeFn.push(callback);
+        return ()=>this._beforeFn.splice(this._beforeFn.indexOf(callback), 1);
+    }
+    after(callback) {
+        this._afterFn.push(callback);
+        return ()=>this._afterFn.splice(this._afterFn.indexOf(callback), 1);
+    }
+    use(callback = (next, ...args)=>args, context) {
+        return (...args)=>{
+            let result;
+            const stack = new _Stack.Stack(context !== null && context !== void 0 ? context : {});
+            stack.add(function(next, ..._) {
+                next(...args);
+            });
+            this._beforeFn.forEach((cb)=>stack.add(cb));
+            stack.add((next, ...innerArgs)=>{
+                result = callback.call(context, next, ...innerArgs);
+                this._autoProceedToAfter && next(...result);
+            });
+            this._afterFn.forEach((cb)=>stack.add(cb));
+            stack.run();
+            return result === null || result === void 0 ? void 0 : result[0];
+        };
+    }
+    constructor({ autoProceedToAfter = false } = {}){
+        _define_property(this, "_autoProceedToAfter", void 0);
+        _define_property(this, "_beforeFn", void 0);
+        _define_property(this, "_afterFn", void 0);
+        this._autoProceedToAfter = autoProceedToAfter;
+        this._beforeFn = [];
+        this._afterFn = [];
+    }
+}
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9Vc2Vycy9tY2F0dGFuZW8vd29ya3NwYWNlL2Zyb250ZW5kL2xpYnMvY29tbW9uL3V0aWxzL3NyYy9saWIvZGVzaWduLXBhdHRlcm5zL1Byb3h5LnRzIl0sInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7IENhbGxiYWNrLCBDb250ZXh0LCBOZXh0LCBTdGFjayB9IGZyb20gXCIuL1N0YWNrXCJcblxuY2xhc3MgUHJveHk8VCBleHRlbmRzIEFycmF5PHVua25vd24+PiB7XG4gIHByaXZhdGUgX2F1dG9Qcm9jZWVkVG9BZnRlcjogYm9vbGVhblxuICBwcml2YXRlIF9iZWZvcmVGbjogQXJyYXk8Q2FsbGJhY2s8VCwgQ29udGV4dD4+XG4gIHByaXZhdGUgX2FmdGVyRm46IEFycmF5PENhbGxiYWNrPFQsIENvbnRleHQ+PlxuXG4gIGNvbnN0cnVjdG9yKHsgYXV0b1Byb2NlZWRUb0FmdGVyID0gZmFsc2UgfSA9IHt9KSB7XG4gICAgdGhpcy5fYXV0b1Byb2NlZWRUb0FmdGVyID0gYXV0b1Byb2NlZWRUb0FmdGVyXG4gICAgdGhpcy5fYmVmb3JlRm4gPSBbXVxuICAgIHRoaXMuX2FmdGVyRm4gPSBbXVxuICB9XG5cbiAgYmVmb3JlKGNhbGxiYWNrOiBDYWxsYmFjazxULCBDb250ZXh0Pikge1xuICAgIHRoaXMuX2JlZm9yZUZuLnB1c2goY2FsbGJhY2spXG4gICAgcmV0dXJuICgpID0+IHRoaXMuX2JlZm9yZUZuLnNwbGljZSh0aGlzLl9iZWZvcmVGbi5pbmRleE9mKGNhbGxiYWNrKSwgMSlcbiAgfVxuICBhZnRlcihjYWxsYmFjazogQ2FsbGJhY2s8VCwgQ29udGV4dD4pIHtcbiAgICB0aGlzLl9hZnRlckZuLnB1c2goY2FsbGJhY2spXG4gICAgcmV0dXJuICgpID0+IHRoaXMuX2FmdGVyRm4uc3BsaWNlKHRoaXMuX2FmdGVyRm4uaW5kZXhPZihjYWxsYmFjayksIDEpXG4gIH1cbiAgdXNlKGNhbGxiYWNrID0gKG5leHQ6IE5leHQ8VD4sIC4uLmFyZ3M6IFQpOiBUID0+IGFyZ3MsIGNvbnRleHQ/OiBDb250ZXh0KSB7XG4gICAgcmV0dXJuICguLi5hcmdzOiBUKSA9PiB7XG4gICAgICBsZXQgcmVzdWx0OiBUIHwgdW5kZWZpbmVkXG4gICAgICBjb25zdCBzdGFjayA9IG5ldyBTdGFjazxULCBDb250ZXh0Pihjb250ZXh0ID8/IHt9KVxuICAgICAgc3RhY2suYWRkKGZ1bmN0aW9uIChuZXh0LCAuLi5fKSB7XG4gICAgICAgIG5leHQoLi4uYXJncylcbiAgICAgIH0pXG4gICAgICB0aGlzLl9iZWZvcmVGbi5mb3JFYWNoKGNiID0+IHN0YWNrLmFkZChjYikpXG4gICAgICBzdGFjay5hZGQoKG5leHQsIC4uLmlubmVyQXJncykgPT4ge1xuICAgICAgICByZXN1bHQgPSBjYWxsYmFjay5jYWxsKGNvbnRleHQsIG5leHQsIC4uLmlubmVyQXJncylcbiAgICAgICAgdGhpcy5fYXV0b1Byb2NlZWRUb0FmdGVyICYmIG5leHQoLi4ucmVzdWx0KVxuICAgICAgfSlcbiAgICAgIHRoaXMuX2FmdGVyRm4uZm9yRWFjaChjYiA9PiBzdGFjay5hZGQoY2IpKVxuICAgICAgc3RhY2sucnVuKClcbiAgICAgIHJldHVybiByZXN1bHQ/LlswXVxuICAgIH1cbiAgfVxufVxuXG5leHBvcnQgeyBQcm94eSB9XG4iXSwibmFtZXMiOlsiUHJveHkiLCJiZWZvcmUiLCJjYWxsYmFjayIsIl9iZWZvcmVGbiIsInB1c2giLCJzcGxpY2UiLCJpbmRleE9mIiwiYWZ0ZXIiLCJfYWZ0ZXJGbiIsInVzZSIsIm5leHQiLCJhcmdzIiwiY29udGV4dCIsInJlc3VsdCIsInN0YWNrIiwiU3RhY2siLCJhZGQiLCJfIiwiZm9yRWFjaCIsImNiIiwiaW5uZXJBcmdzIiwiY2FsbCIsIl9hdXRvUHJvY2VlZFRvQWZ0ZXIiLCJydW4iLCJjb25zdHJ1Y3RvciIsImF1dG9Qcm9jZWVkVG9BZnRlciJdLCJyYW5nZU1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OyIsIm1hcHBpbmdzIjoiOzs7OytCQXdDU0E7OztlQUFBQTs7O3VCQXhDc0M7Ozs7Ozs7Ozs7Ozs7O0FBRS9DLE1BQU1BO0lBV0pDLE9BQU9DLFFBQThCLEVBQUU7UUFDckMsSUFBSSxDQUFDQyxTQUFTLENBQUNDLElBQUksQ0FBQ0Y7UUFDcEIsT0FBTyxJQUFNLElBQUksQ0FBQ0MsU0FBUyxDQUFDRSxNQUFNLENBQUMsSUFBSSxDQUFDRixTQUFTLENBQUNHLE9BQU8sQ0FBQ0osV0FBVztJQUN2RTtJQUNBSyxNQUFNTCxRQUE4QixFQUFFO1FBQ3BDLElBQUksQ0FBQ00sUUFBUSxDQUFDSixJQUFJLENBQUNGO1FBQ25CLE9BQU8sSUFBTSxJQUFJLENBQUNNLFFBQVEsQ0FBQ0gsTUFBTSxDQUFDLElBQUksQ0FBQ0csUUFBUSxDQUFDRixPQUFPLENBQUNKLFdBQVc7SUFDckU7SUFDQU8sSUFBSVAsV0FBVyxDQUFDUSxNQUFlLEdBQUdDLE9BQWVBLElBQUksRUFBRUMsT0FBaUIsRUFBRTtRQUN4RSxPQUFPLENBQUMsR0FBR0Q7WUFDVCxJQUFJRTtZQUNKLE1BQU1DLFFBQVEsSUFBSUMsWUFBSyxDQUFhSCxvQkFBQUEscUJBQUFBLFVBQVcsQ0FBQztZQUNoREUsTUFBTUUsR0FBRyxDQUFDLFNBQVVOLElBQUksRUFBRSxHQUFHTyxDQUFDO2dCQUM1QlAsUUFBUUM7WUFDVjtZQUNBLElBQUksQ0FBQ1IsU0FBUyxDQUFDZSxPQUFPLENBQUNDLENBQUFBLEtBQU1MLE1BQU1FLEdBQUcsQ0FBQ0c7WUFDdkNMLE1BQU1FLEdBQUcsQ0FBQyxDQUFDTixNQUFNLEdBQUdVO2dCQUNsQlAsU0FBU1gsU0FBU21CLElBQUksQ0FBQ1QsU0FBU0YsU0FBU1U7Z0JBQ3pDLElBQUksQ0FBQ0UsbUJBQW1CLElBQUlaLFFBQVFHO1lBQ3RDO1lBQ0EsSUFBSSxDQUFDTCxRQUFRLENBQUNVLE9BQU8sQ0FBQ0MsQ0FBQUEsS0FBTUwsTUFBTUUsR0FBRyxDQUFDRztZQUN0Q0wsTUFBTVMsR0FBRztZQUNULE9BQU9WLG1CQUFBQSw2QkFBQUEsTUFBUSxDQUFDLEVBQUU7UUFDcEI7SUFDRjtJQTlCQVcsWUFBWSxFQUFFQyxxQkFBcUIsS0FBSyxFQUFFLEdBQUcsQ0FBQyxDQUFDLENBQUU7UUFKakQsdUJBQVFILHVCQUFSLEtBQUE7UUFDQSx1QkFBUW5CLGFBQVIsS0FBQTtRQUNBLHVCQUFRSyxZQUFSLEtBQUE7UUFHRSxJQUFJLENBQUNjLG1CQUFtQixHQUFHRztRQUMzQixJQUFJLENBQUN0QixTQUFTLEdBQUcsRUFBRTtRQUNuQixJQUFJLENBQUNLLFFBQVEsR0FBRyxFQUFFO0lBQ3BCO0FBMkJGIn0=
